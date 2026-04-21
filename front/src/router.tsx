@@ -5,6 +5,10 @@ import ListUsuariosView from "./views/usuarios/ListUsuariosView";
 import CreateUsuarioView from "./views/usuarios/CreateUsuarioView";
 import EditUsuarioView from "./views/usuarios/EditUsuarioView";
 import UsuarioView from "./views/usuarios/UsuarioView";
+import ListCategoriasContablesView from "./views/categorias-contables/ListCategoriasContablesView";
+import CreateCategoriaContableView from "./views/categorias-contables/CreateCategoriaContableView";
+import EditCategoriaContableView from "./views/categorias-contables/EditCategoriaContableView";
+import CategoriaContableView from "./views/categorias-contables/CategoriaContableView";
 
 import LoginView from "./views/auth/LoginView";
 import NotFound from "./views/NotFound";
@@ -28,6 +32,10 @@ export default function Router() {
             <Route path="/config/usuarios/create" element={<CreateUsuarioView />} />
             <Route path="/config/usuarios/:idUsuario" element={<UsuarioView />} />
             <Route path="/config/usuarios/:idUsuario/editar" element={<EditUsuarioView />} />
+            <Route path="/config/categorias-contables" element={<ListCategoriasContablesView />} />
+            <Route path="/config/categorias-contables/create" element={<CreateCategoriaContableView />} />
+            <Route path="/config/categorias-contables/:idCategoriaContable" element={<CategoriaContableView />} />
+            <Route path="/config/categorias-contables/:idCategoriaContable/editar" element={<EditCategoriaContableView />} />
           </Route>
         </Route>
         <Route path="*" element={<NotFound />} />

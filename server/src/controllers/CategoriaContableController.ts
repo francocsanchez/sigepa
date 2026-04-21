@@ -5,13 +5,41 @@ import { logError } from "../utils/logError";
 export class CategoriaContableController {
   static getAll = async (req: Request, res: Response) => {
     try {
-      const categorias = await CategoriaContable.find({ enable: true }).sort({ nombre: 1 }).lean();
+      const includeDisabled = req.query.includeDisabled === "true";
+      const filters = includeDisabled ? {} : { enable: true };
+      const categorias = await CategoriaContable.find(filters).sort({ nombre: 1 }).lean();
 
       return res.status(200).json({
         data: categorias,
       });
     } catch (error) {
       logError("CategoriaContableController.getAll");
+      console.error(error);
+      return res.status(500).json({
+        data: null,
+        message: "Error del servidor",
+      });
+    }
+  };
+
+  static getByID = async (req: Request, res: Response) => {
+    const { idCategoriaContable } = req.params;
+
+    try {
+      const categoria = await CategoriaContable.findById(idCategoriaContable).lean();
+
+      if (!categoria) {
+        return res.status(404).json({
+          data: null,
+          message: "Categoría no encontrada",
+        });
+      }
+
+      return res.status(200).json({
+        data: categoria,
+      });
+    } catch (error) {
+      logError("CategoriaContableController.getByID");
       console.error(error);
       return res.status(500).json({
         data: null,
@@ -128,6 +156,36 @@ export class CategoriaContableController {
       });
     } catch (error) {
       logError("CategoriaContableController.deleteByID");
+      console.error(error);
+      return res.status(500).json({
+        data: null,
+        message: "Error del servidor",
+      });
+    }
+  };
+
+  static changeStatus = async (req: Request, res: Response) => {
+    const { idCategoriaContable } = req.params;
+
+    try {
+      const categoria = await CategoriaContable.findById(idCategoriaContable);
+
+      if (!categoria) {
+        return res.status(404).json({
+          data: null,
+          message: "Categoría no encontrada",
+        });
+      }
+
+      categoria.enable = !categoria.enable;
+      await categoria.save();
+
+      return res.status(200).json({
+        data: categoria,
+        message: `Categoría ${categoria.enable ? "habilitada" : "deshabilitada"} correctamente`,
+      });
+    } catch (error) {
+      logError("CategoriaContableController.changeStatus");
       console.error(error);
       return res.status(500).json({
         data: null,

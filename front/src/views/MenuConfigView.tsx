@@ -1,4 +1,4 @@
-import { ChevronRight, Users } from "lucide-react";
+import { ChevronRight, FolderOpen, Users } from "lucide-react";
 import { Link } from "react-router-dom";
 
 const configItems = [
@@ -7,6 +7,12 @@ const configItems = [
     description: "Configura accesos, permisos y cuentas del equipo.",
     href: "/config/usuarios",
     icon: Users,
+  },
+  {
+    title: "Categorías contables",
+    description: "Administrá las categorías para ingresos, egresos y usos mixtos.",
+    href: "/config/categorias-contables",
+    icon: FolderOpen,
   },
 ];
 
@@ -29,7 +35,7 @@ export default function MenuConfigView() {
               <Link
                 key={item.title}
                 to={item.href}
-                className="group flex min-h-[200px] flex-col rounded-[1.75rem] border border-secondary-dark/70 bg-white p-6 shadow-[0_24px_60px_-48px_rgba(14,124,114,0.5)] transition-all duration-200 "
+                className="group flex min-h-[200px] flex-col rounded-[1.75rem] border border-secondary-dark/70 bg-white p-6 shadow-[0_24px_60px_-48px_rgba(15,12,10,0.18)] transition-all duration-200 hover:border-primary/30 hover:shadow-[0_26px_60px_-46px_rgba(255,122,0,0.18)]"
               >
                 <div className="flex h-7 w-7 items-center justify-center rounded-2xl bg-secondary text-primary">
                   <Icon className="h-7 w-7" strokeWidth={1.9} />
