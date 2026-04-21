@@ -9,12 +9,16 @@ import ListCategoriasContablesView from "./views/categorias-contables/ListCatego
 import CreateCategoriaContableView from "./views/categorias-contables/CreateCategoriaContableView";
 import EditCategoriaContableView from "./views/categorias-contables/EditCategoriaContableView";
 import CategoriaContableView from "./views/categorias-contables/CategoriaContableView";
+import ListMovimientosContablesView from "./views/movimientos-contables/ListMovimientosContablesView";
+import CreateMovimientoContableView from "./views/movimientos-contables/CreateMovimientoContableView";
+import EditMovimientoContableView from "./views/movimientos-contables/EditMovimientoContableView";
 
 import LoginView from "./views/auth/LoginView";
 import NotFound from "./views/NotFound";
 import ProtectedRoute from "./layouts/ProtectedRoute";
 import NoAutorizado from "./views/NoAutorizado";
 import MiPerfilView from "./views/auth/MiPerfilView";
+import RoleProtectedRoute from "./layouts/RoleProtectedRoute";
 
 export default function Router() {
   return (
@@ -36,6 +40,12 @@ export default function Router() {
             <Route path="/config/categorias-contables/create" element={<CreateCategoriaContableView />} />
             <Route path="/config/categorias-contables/:idCategoriaContable" element={<CategoriaContableView />} />
             <Route path="/config/categorias-contables/:idCategoriaContable/editar" element={<EditCategoriaContableView />} />
+
+            <Route element={<RoleProtectedRoute allowedRoles={["admin", "secretaria", "contable"]} />}>
+              <Route path="/contabilidad" element={<ListMovimientosContablesView />} />
+              <Route path="/contabilidad/create" element={<CreateMovimientoContableView />} />
+              <Route path="/contabilidad/:idMovimientoContable/editar" element={<EditMovimientoContableView />} />
+            </Route>
           </Route>
         </Route>
         <Route path="*" element={<NotFound />} />

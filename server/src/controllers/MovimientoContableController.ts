@@ -1,4 +1,6 @@
 import { Request, Response } from "express";
+import { applyBalanceDelta, revertBalanceDelta } from "../helpers/balanceContable";
+import BalanceContable from "../models/BalanceContable";
 import CategoriaContable, { categoriaContableTipo } from "../models/CategoriaContable";
 import MovimientoContable from "../models/MovimientoContable";
 import Usuario from "../models/Usuario";
@@ -13,7 +15,7 @@ const MOVIMIENTO_POPULATE = [
 const validateCategoriaForTipo = async (categoriaId: string, tipo: string) => {
   const categoria = await CategoriaContable.findById(categoriaId).lean();
 
-  if (!categoria || !categoria.enable) {
+  if (!categoria || categoria.enable === false) {
     return { error: "La categoría no existe o está deshabilitada" };
   }
 
@@ -57,6 +59,54 @@ export class MovimientoContableController {
     }
   };
 
+  static getBalance = async (_req: Request, res: Response) => {
+    try {
+      const balance = await BalanceContable.findOne({ key: "general" }).lean();
+
+      return res.status(200).json({
+        data: balance || {
+          key: "general",
+          totalIngresos: 0,
+          totalEgresos: 0,
+          saldoActual: 0,
+        },
+      });
+    } catch (error) {
+      logError("MovimientoContableController.getBalance");
+      console.error(error);
+      return res.status(500).json({
+        data: null,
+        message: "Error del servidor",
+      });
+    }
+  };
+
+  static getByID = async (req: Request, res: Response) => {
+    const { idMovimientoContable } = req.params;
+
+    try {
+      const movimiento = await MovimientoContable.findById(idMovimientoContable).populate(MOVIMIENTO_POPULATE).lean();
+
+      if (!movimiento || !movimiento.enable) {
+        return res.status(404).json({
+          data: null,
+          message: "Movimiento contable no encontrado",
+        });
+      }
+
+      return res.status(200).json({
+        data: movimiento,
+      });
+    } catch (error) {
+      logError("MovimientoContableController.getByID");
+      console.error(error);
+      return res.status(500).json({
+        data: null,
+        message: "Error del servidor",
+      });
+    }
+  };
+
   static create = async (req: Request, res: Response) => {
     try {
       const { tipo, fecha, monto, concepto, categoria, usuario, observaciones } = req.body;
@@ -83,12 +133,13 @@ export class MovimientoContableController {
         monto,
         concepto,
         categoria,
-        usuario,
+        usuario: usuario || undefined,
         observaciones,
         createdBy: req.user._id,
       });
 
       await movimiento.save();
+      await applyBalanceDelta(tipo, monto);
 
       const createdMovimiento = await MovimientoContable.findById(movimiento._id).populate(MOVIMIENTO_POPULATE).lean();
 
@@ -137,6 +188,9 @@ export class MovimientoContableController {
         });
       }
 
+      const previousTipo = existingMovimiento.tipo;
+      const previousMonto = existingMovimiento.monto;
+
       existingMovimiento.tipo = tipo;
       existingMovimiento.fecha = fecha;
       existingMovimiento.monto = monto;
@@ -145,6 +199,8 @@ export class MovimientoContableController {
       existingMovimiento.usuario = usuario || undefined;
       existingMovimiento.observaciones = observaciones || "";
       await existingMovimiento.save();
+      await revertBalanceDelta(previousTipo, previousMonto);
+      await applyBalanceDelta(existingMovimiento.tipo, existingMovimiento.monto);
 
       const updatedMovimiento = await MovimientoContable.findById(idMovimientoContable).populate(MOVIMIENTO_POPULATE).lean();
 
@@ -177,10 +233,11 @@ export class MovimientoContableController {
 
       movimiento.enable = false;
       await movimiento.save();
+      await revertBalanceDelta(movimiento.tipo, movimiento.monto);
 
       return res.status(200).json({
         data: null,
-        message: "Movimiento contable eliminado correctamente",
+        message: "Movimiento contable anulado correctamente",
       });
     } catch (error) {
       logError("MovimientoContableController.deleteByID");

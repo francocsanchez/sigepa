@@ -2,15 +2,20 @@ import { Request, Response } from "express";
 import CategoriaContable from "../models/CategoriaContable";
 import { logError } from "../utils/logError";
 
+const normalizeCategoriaContable = <T extends { enable?: boolean | null }>(categoria: T) => ({
+  ...categoria,
+  enable: categoria.enable !== false,
+});
+
 export class CategoriaContableController {
   static getAll = async (req: Request, res: Response) => {
     try {
       const includeDisabled = req.query.includeDisabled === "true";
-      const filters = includeDisabled ? {} : { enable: true };
+      const filters = includeDisabled ? {} : { enable: { $ne: false } };
       const categorias = await CategoriaContable.find(filters).sort({ nombre: 1 }).lean();
 
       return res.status(200).json({
-        data: categorias,
+        data: categorias.map(normalizeCategoriaContable),
       });
     } catch (error) {
       logError("CategoriaContableController.getAll");
@@ -36,7 +41,7 @@ export class CategoriaContableController {
       }
 
       return res.status(200).json({
-        data: categoria,
+        data: normalizeCategoriaContable(categoria),
       });
     } catch (error) {
       logError("CategoriaContableController.getByID");
@@ -72,7 +77,7 @@ export class CategoriaContableController {
       await categoria.save();
 
       return res.status(201).json({
-        data: categoria,
+        data: normalizeCategoriaContable(categoria.toObject()),
         message: "Categoría creada correctamente",
       });
     } catch (error) {
@@ -121,7 +126,7 @@ export class CategoriaContableController {
       }
 
       return res.status(200).json({
-        data: categoria,
+        data: normalizeCategoriaContable(categoria),
         message: "Categoría actualizada correctamente",
       });
     } catch (error) {
@@ -181,7 +186,7 @@ export class CategoriaContableController {
       await categoria.save();
 
       return res.status(200).json({
-        data: categoria,
+        data: normalizeCategoriaContable(categoria.toObject()),
         message: `Categoría ${categoria.enable ? "habilitada" : "deshabilitada"} correctamente`,
       });
     } catch (error) {
