@@ -21,8 +21,12 @@ app.use(express.json());
 // Routes
 import usuarioRoutes from "./routes/usuarioRoutes";
 import configRoutes from "./routes/configRoutes";
+import categoriaContableRoutes from "./routes/categoriaContableRoutes";
+import movimientoContableRoutes from "./routes/movimientoContableRoutes";
 
 app.use("/api/usuarios", usuarioRoutes);
 app.use("/api/configuracion", configRoutes);
+app.use("/api/categorias-contables", categoriaContableRoutes);
+app.use("/api/movimientos-contables", movimientoContableRoutes);
 
 export default app;
