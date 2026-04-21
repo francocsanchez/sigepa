@@ -79,3 +79,17 @@ export const createValidationUsuario = [
 export const forgotPasswordValidationUsuario = [
   body("email").notEmpty().withMessage("El email es obligatorio").isEmail().withMessage("El email no es válido").normalizeEmail(),
 ];
+
+export const updateMyProfileValidationUsuario = [
+  body("email").notEmpty().withMessage("El email es obligatorio").isEmail().withMessage("El email no es válido").normalizeEmail(),
+  body("telefono").optional().trim(),
+  body("licenciaFAP").optional().trim(),
+  body("direccion").optional().trim(),
+  body("nacionalidad").optional().trim(),
+  body("fechaNacimiento").optional().trim(),
+  body("fechaVencimientoCMA").optional().trim(),
+  body("fechaVencimientoLicencia").optional().trim(),
+  body("contactoEmergencia").optional().trim(),
+  body("grupoSanguineo").optional().trim(),
+  body("obraSocial").optional().trim(),
+];

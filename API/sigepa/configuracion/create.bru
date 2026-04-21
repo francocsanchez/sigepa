@@ -1,0 +1,36 @@
+meta {
+  name: create
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{Host}}:4001/api/configuracion
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "email": "administracion@sigepa.com",
+    "direccion": "Avenida Siempre Viva 123",
+    "lat": "-24.7859",
+    "long": "-65.4117",
+    "valorSalto": 25000,
+    "valorEquipo": 18000,
+    "valorCuota": 12000,
+    "bancoTitular": "SIGEPA",
+    "bancoAlias": "sigepa.banco",
+    "bancoCBU": "0000003100000000000001",
+    "bancoMercadoPagoAlias": "sigepa.mp",
+    "bancoMercadoPagoCBU": "0000003100000000000002",
+    "telefono": "+543874000000",
+    "facebook": "https://facebook.com/sigepa",
+    "instragram": "https://instagram.com/sigepa"
+  }
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

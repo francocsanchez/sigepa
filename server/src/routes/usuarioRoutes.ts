@@ -5,6 +5,7 @@ import {
   createValidationUsuario,
   forgotPasswordValidationUsuario,
   idValidationUsuario,
+  updateMyProfileValidationUsuario,
   updateValidationUsuario,
 } from "../validation/usuarios";
 import { authenticate } from "../middleware/authenticate";
@@ -34,6 +35,14 @@ router.post("/forgot-password", forgotPasswordValidationUsuario, handleImputErro
  * @description Obtiene los datos del usuario autenticado.
  */
 router.get("/me", authenticate, UsuarioController.getMe);
+
+/**
+ * @method PATCH
+ * @route /me
+ * @params Ninguno.
+ * @description Actualiza los datos editables del usuario autenticado.
+ */
+router.patch("/me", authenticate, updateMyProfileValidationUsuario, handleImputErrors, UsuarioController.updateMe);
 
 /**
  * @method GET

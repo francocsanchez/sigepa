@@ -1,0 +1,27 @@
+meta {
+  name: update
+  type: http
+  seq: 3
+}
+
+put {
+  url: {{Host}}:4001/api/categorias-contables/681ac98f8c2d4b0011223344
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{TOKEN}}
+}
+
+body:json {
+  {
+    "nombre": "Mantenimiento de equipos",
+    "tipo": "EGRESO"
+  }
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

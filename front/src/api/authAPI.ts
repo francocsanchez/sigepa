@@ -1,0 +1,52 @@
+import api from "@/libs/axios";
+import type { UpdateMyProfileFormData, UsuarioMutationResponse } from "@/types/index";
+import { isAxiosError } from "axios";
+
+type AuthenticateUserFormData = {
+  email: string;
+  password: string;
+};
+
+type UpdateMyPasswordFormData = {
+  newPassword: string;
+};
+
+export async function authenticateUser(formData: AuthenticateUserFormData) {
+  try {
+    const { data } = await api.post("/usuarios/login", formData);
+    localStorage.setItem("AUTH_TOKEN", data.token);
+    return data;
+  } catch (error) {
+    if (isAxiosError(error)) {
+      throw new Error(error.response?.data?.error || error.response?.data?.message || "Error al iniciar sesión");
+    }
+
+    throw new Error("Error al iniciar sesión");
+  }
+}
+
+export async function updateMyPassword(formData: UpdateMyPasswordFormData) {
+  try {
+    const { data } = await api.patch("/usuarios/me/password", formData);
+    return data;
+  } catch (error) {
+    if (isAxiosError(error)) {
+      throw new Error(error.response?.data?.error || error.response?.data?.message || "Error al actualizar la contraseña");
+    }
+
+    throw new Error("Error al actualizar la contraseña");
+  }
+}
+
+export async function updateMyProfile(formData: UpdateMyProfileFormData): Promise<UsuarioMutationResponse> {
+  try {
+    const { data } = await api.patch<UsuarioMutationResponse>("/usuarios/me", formData);
+    return data;
+  } catch (error) {
+    if (isAxiosError(error)) {
+      throw new Error(error.response?.data?.error || error.response?.data?.message || "Error al actualizar el perfil");
+    }
+
+    throw new Error("Error al actualizar el perfil");
+  }
+}

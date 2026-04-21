@@ -1,0 +1,20 @@
+meta {
+  name: getAll
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{Host}}:4001/api/movimientos-contables
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{TOKEN}}
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

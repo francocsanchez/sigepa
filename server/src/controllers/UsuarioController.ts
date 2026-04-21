@@ -343,10 +343,98 @@ export class UsuarioController {
   };
 
   static getMe = async (req: Request, res: Response) => {
-    return res.status(200).json({
-      data: req.user,
-      message: "Usuario autenticado",
-    });
+    try {
+      const { _id } = req.user;
+      const usuario = await Usuario.findById(_id, USER_PUBLIC_PROJECTION).lean();
+
+      if (!usuario) {
+        return res.status(404).json({
+          data: null,
+          message: "Usuario no encontrado",
+        });
+      }
+
+      return res.status(200).json({
+        data: usuario,
+        message: "Usuario autenticado",
+      });
+    } catch (error) {
+      logError("UsuarioController.getMe");
+      console.error(error);
+      return res.status(500).json({
+        data: null,
+        message: "Error del servidor",
+      });
+    }
+  };
+
+  static updateMe = async (req: Request, res: Response) => {
+    try {
+      const { _id } = req.user;
+      const {
+        email,
+        telefono,
+        licenciaFAP,
+        direccion,
+        nacionalidad,
+        fechaNacimiento,
+        fechaVencimientoCMA,
+        fechaVencimientoLicencia,
+        contactoEmergencia,
+        grupoSanguineo,
+        obraSocial,
+      } = req.body;
+
+      const normalizedEmail = email.trim().toLowerCase();
+      const existingUser = await Usuario.findOne({
+        email: normalizedEmail,
+        _id: { $ne: _id },
+      }).lean();
+
+      if (existingUser) {
+        return res.status(400).json({
+          data: null,
+          message: "El email ya está registrado",
+        });
+      }
+
+      const usuarioActualizado = await Usuario.findByIdAndUpdate(
+        _id,
+        {
+          email: normalizedEmail,
+          telefono,
+          licenciaFAP,
+          direccion,
+          nacionalidad,
+          fechaNacimiento,
+          fechaVencimientoCMA,
+          fechaVencimientoLicencia,
+          contactoEmergencia,
+          grupoSanguineo,
+          obraSocial,
+        },
+        { new: true, projection: USER_PUBLIC_PROJECTION },
+      ).lean();
+
+      if (!usuarioActualizado) {
+        return res.status(404).json({
+          data: null,
+          message: "Usuario no encontrado",
+        });
+      }
+
+      return res.status(200).json({
+        data: usuarioActualizado,
+        message: "Perfil actualizado correctamente",
+      });
+    } catch (error) {
+      logError("UsuarioController.updateMe");
+      console.error(error);
+      return res.status(500).json({
+        data: null,
+        message: "Error del servidor",
+      });
+    }
   };
 
   static updateMyPassword = async (req: Request, res: Response) => {

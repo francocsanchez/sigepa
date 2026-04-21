@@ -1,0 +1,32 @@
+meta {
+  name: create
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{Host}}:4001/api/movimientos-contables
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{TOKEN}}
+}
+
+body:json {
+  {
+    "tipo": "INGRESO",
+    "fecha": "2026-04-20T10:00:00.000Z",
+    "monto": 25000,
+    "concepto": "Cobro de salto",
+    "categoria": "681ac98f8c2d4b0011223344",
+    "usuario": "681ac98f8c2d4b0011223355",
+    "observaciones": "Pago registrado en efectivo"
+  }
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
