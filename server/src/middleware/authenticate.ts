@@ -11,7 +11,7 @@ declare global {
         lastName: string;
         email: string;
         enable: boolean;
-        role: string;
+        role: string[];
       };
     }
   }

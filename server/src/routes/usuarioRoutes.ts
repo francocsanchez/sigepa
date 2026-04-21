@@ -1,7 +1,12 @@
 import { Router } from "express";
 import { UsuarioController } from "../controllers/UsuarioController";
 import { handleImputErrors } from "../middleware/validation";
-import { createValidationUsuario, idValidationUsuario, updateValidationUsuario } from "../validation/usuarios";
+import {
+  createValidationUsuario,
+  forgotPasswordValidationUsuario,
+  idValidationUsuario,
+  updateValidationUsuario,
+} from "../validation/usuarios";
 import { authenticate } from "../middleware/authenticate";
 
 const router = Router();
@@ -14,7 +19,13 @@ const router = Router();
  */
 router.post("/login", UsuarioController.login);
 
-router.use(authenticate);
+/**
+ * @method POST
+ * @route /forgot-password
+ * @params Ninguno.
+ * @description Genera una nueva contraseña temporal y la envia por email.
+ */
+router.post("/forgot-password", forgotPasswordValidationUsuario, handleImputErrors, UsuarioController.forgotPassword);
 
 /**
  * @method GET
@@ -22,7 +33,7 @@ router.use(authenticate);
  * @params Ninguno.
  * @description Obtiene los datos del usuario autenticado.
  */
-router.get("/me", UsuarioController.getMe);
+router.get("/me", authenticate, UsuarioController.getMe);
 
 /**
  * @method GET
@@ -38,7 +49,7 @@ router.get("/", UsuarioController.getAll);
  * @params Ninguno.
  * @description Actualiza la contraseña del usuario autenticado.
  */
-router.patch("/me/password", UsuarioController.updateMyPassword);
+router.patch("/me/password", authenticate, UsuarioController.updateMyPassword);
 
 /**
  * @method POST

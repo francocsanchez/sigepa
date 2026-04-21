@@ -1,10 +1,21 @@
 import { Request, Response } from "express";
-import Usuario from "../models/Usuario";
+import crypto from "crypto";
+import Usuario, { userRole } from "../models/Usuario";
 import { checkPassword, hashPassword } from "../helpers/hash";
 import { logError } from "../utils/logError";
 import { generateJWT } from "../helpers/jwt";
+import { sendMail } from "../helpers/mailer";
+import { passwordRecoveryEmail } from "../templates/passwordRecoveryEmail";
 
 const USER_PUBLIC_PROJECTION = "-password";
+const DEFAULT_ROLE = [userRole.SOCIO];
+
+const normalizeRoles = (role: string | string[] | undefined) => {
+  if (!role) return DEFAULT_ROLE;
+  return Array.isArray(role) ? role : [role];
+};
+
+const generateTemporaryPassword = () => crypto.randomBytes(4).toString("hex").toUpperCase();
 
 export class UsuarioController {
   static getAll = async (req: Request, res: Response) => {
@@ -13,7 +24,6 @@ export class UsuarioController {
 
       return res.status(200).json({
         data: usuarios,
-        message: "Listado de usuarios",
       });
     } catch (error) {
       logError("UsuarioController.getAll");
@@ -26,26 +36,54 @@ export class UsuarioController {
   };
 
   static create = async (req: Request, res: Response) => {
-    const { email, name, lastName, role } = req.body;
+    const {
+      email,
+      name,
+      lastName,
+      dni,
+      telefono,
+      licenciaFAP,
+      direccion,
+      nacionalidad,
+      role,
+      enable,
+      grupoSanguineo,
+      obraSocial,
+      fechaNacimiento,
+      contactoEmergencia,
+    } = req.body;
 
     try {
-      const existingUser = await Usuario.findOne({ email }).lean();
+      const normalizedEmail = email.trim().toLowerCase();
+      const existingUser = await Usuario.findOne({
+        $or: [{ email: normalizedEmail }, { dni }],
+      }).lean();
 
       if (existingUser) {
         return res.status(400).json({
           data: null,
-          message: "El email ya está registrado",
+          message: existingUser.email === normalizedEmail ? "El email ya está registrado" : "El DNI ya está registrado",
         });
       }
 
       const newUser = new Usuario({
-        email,
+        email: normalizedEmail,
         name,
         lastName,
-        role,
+        dni,
+        telefono,
+        licenciaFAP,
+        direccion,
+        nacionalidad,
+        enable,
+        grupoSanguineo,
+        obraSocial,
+        fechaNacimiento,
+        contactoEmergencia,
+        role: normalizeRoles(role),
       });
 
-      newUser.password = await hashPassword(process.env.DEFAULT_USER_PASSWORD as string);
+      newUser.password = await hashPassword(String(dni));
       await newUser.save();
 
       const usuarioCreado = await Usuario.findById(newUser._id, USER_PUBLIC_PROJECTION).lean();
@@ -79,7 +117,6 @@ export class UsuarioController {
 
       return res.status(200).json({
         data: usuario,
-        message: "Usuario listado",
       });
     } catch (error) {
       logError("UsuarioController.getByID");
@@ -93,28 +130,54 @@ export class UsuarioController {
 
   static updateByID = async (req: Request, res: Response) => {
     const { idUsuario } = req.params;
-    const { email, name, lastName, role } = req.body;
+    const {
+      email,
+      name,
+      lastName,
+      dni,
+      telefono,
+      licenciaFAP,
+      direccion,
+      nacionalidad,
+      role,
+      enable,
+      grupoSanguineo,
+      obraSocial,
+      fechaNacimiento,
+      contactoEmergencia,
+    } = req.body;
 
     try {
+      const normalizedEmail = email.trim().toLowerCase();
       const existingUser = await Usuario.findOne({
-        email,
         _id: { $ne: idUsuario },
+        $or: [{ email: normalizedEmail }, { dni }],
       }).lean();
 
       if (existingUser) {
         return res.status(400).json({
           data: null,
-          message: "El email ya está registrado",
+          message: existingUser.email === normalizedEmail ? "El email ya está registrado" : "El DNI ya está registrado",
         });
       }
 
       const updatedUser = await Usuario.findByIdAndUpdate(
         idUsuario,
         {
-          email,
+          email: normalizedEmail,
           name,
           lastName,
-          role,
+          dni,
+          telefono,
+          licenciaFAP,
+          direccion,
+          nacionalidad,
+          enable,
+          grupoSanguineo,
+          obraSocial,
+          fechaNacimiento,
+          contactoEmergencia,
+          role: normalizeRoles(role),
         },
         { new: true, projection: USER_PUBLIC_PROJECTION },
       ).lean();
@@ -228,8 +291,54 @@ export class UsuarioController {
     }
   };
 
+  static forgotPassword = async (req: Request, res: Response) => {
+    try {
+      const { email } = req.body as { email: string };
+
+      if (!email) {
+        return res.status(400).json({
+          data: null,
+          message: "El email es obligatorio",
+        });
+      }
+
+      const normalizedEmail = email.trim().toLowerCase();
+      const user = await Usuario.findOne({ email: normalizedEmail });
+
+      if (user) {
+        const temporaryPassword = generateTemporaryPassword();
+        user.password = await hashPassword(temporaryPassword);
+        await user.save();
+
+        await sendMail({
+          to: user.email,
+          subject: "Nueva contrasena temporal de SIGEPA",
+          html: passwordRecoveryEmail({
+            temporaryPassword,
+            userName: `${user.name} ${user.lastName}`.trim(),
+          }),
+        });
+      }
+
+      return res.status(200).json({
+        data: null,
+        message: "Si el email existe, enviamos instrucciones para recuperar la contraseña",
+      });
+    } catch (error) {
+      logError("UsuarioController.forgotPassword");
+      console.error(error);
+      return res.status(500).json({
+        data: null,
+        message: "Error del servidor",
+      });
+    }
+  };
+
   static getMe = async (req: Request, res: Response) => {
-    res.json(req.user);
+    return res.status(200).json({
+      data: req.user,
+      message: "Usuario autenticado",
+    });
   };
 
   static updateMyPassword = async (req: Request, res: Response) => {
