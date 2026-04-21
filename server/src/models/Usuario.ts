@@ -2,10 +2,11 @@ import { Schema, model, Document } from "mongoose";
 
 export const userRole = {
   ADMIN: "admin",
+  SECRETARIA: "secretaria",
+  INSTRUCTOR: "instructor",
   PARACAIDISTA: "paracaidista",
   SOCIO: "socio",
   PILOTO: "piloto",
-  SUPERVISOR: "supervisor",
   CONTABLE: "contable",
 } as const;
 
@@ -24,6 +25,8 @@ export interface IUsuario extends Document {
   direccion: string;
   nacionalidad: string;
   fechaNacimiento: string;
+  fechaVencimientoCMA: string;
+  fechaVencimientoLicencia: string;
   contactoEmergencia: string;
   grupoSanguineo: string;
   obraSocial: string;
@@ -39,6 +42,8 @@ const UsuarioSchema: Schema = new Schema<IUsuario>(
     direccion: { type: String },
     nacionalidad: { type: String },
     fechaNacimiento: { type: String },
+    fechaVencimientoCMA: { type: String },
+    fechaVencimientoLicencia: { type: String },
     contactoEmergencia: { type: String },
     grupoSanguineo: { type: String },
     obraSocial: { type: String },

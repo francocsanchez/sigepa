@@ -50,6 +50,8 @@ export class UsuarioController {
       grupoSanguineo,
       obraSocial,
       fechaNacimiento,
+      fechaVencimientoCMA,
+      fechaVencimientoLicencia,
       contactoEmergencia,
     } = req.body;
 
@@ -79,6 +81,8 @@ export class UsuarioController {
         grupoSanguineo,
         obraSocial,
         fechaNacimiento,
+        fechaVencimientoCMA,
+        fechaVencimientoLicencia,
         contactoEmergencia,
         role: normalizeRoles(role),
       });
@@ -144,6 +148,8 @@ export class UsuarioController {
       grupoSanguineo,
       obraSocial,
       fechaNacimiento,
+      fechaVencimientoCMA,
+      fechaVencimientoLicencia,
       contactoEmergencia,
     } = req.body;
 
@@ -176,6 +182,8 @@ export class UsuarioController {
           grupoSanguineo,
           obraSocial,
           fechaNacimiento,
+          fechaVencimientoCMA,
+          fechaVencimientoLicencia,
           contactoEmergencia,
           role: normalizeRoles(role),
         },
