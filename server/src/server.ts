@@ -25,6 +25,7 @@ import categoriaContableRoutes from "./routes/categoriaContableRoutes";
 import movimientoContableRoutes from "./routes/movimientoContableRoutes";
 import cuotaRoutes from "./routes/cuotaRoutes";
 import cuentaCorrienteRoutes from "./routes/cuentaCorrienteRoutes";
+import vueloRoutes from "./routes/vueloRoutes";
 
 app.use("/api/usuarios", usuarioRoutes);
 app.use("/api/configuracion", configRoutes);
@@ -32,5 +33,6 @@ app.use("/api/categorias-contables", categoriaContableRoutes);
 app.use("/api/movimientos-contables", movimientoContableRoutes);
 app.use("/api/cuotas", cuotaRoutes);
 app.use("/api/cuenta-corriente", cuentaCorrienteRoutes);
+app.use("/api/vuelos", vueloRoutes);
 
 export default app;

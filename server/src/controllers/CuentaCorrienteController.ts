@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import Cuota, { cuotaEstado } from "../models/Cuota";
 import MovimientoContable, { movimientoContableTipo } from "../models/MovimientoContable";
+import VueloCargo, { vueloCargoEstado, vueloCargoTipo } from "../models/VueloCargo";
 import { logError } from "../utils/logError";
 
 type CuentaCorrienteItem = {
@@ -8,7 +9,7 @@ type CuentaCorrienteItem = {
   fecha: Date;
   descripcion: string;
   detalle: string;
-  origen: "CUOTA" | "MOVIMIENTO";
+  origen: "CUOTA" | "MOVIMIENTO" | "VUELO";
   tipo: "DEBITO" | "CREDITO";
   estado: "PENDIENTE" | "PAGADA" | "REGISTRADO";
   monto: number;
@@ -22,16 +23,22 @@ type CuentaCorrienteItem = {
     nombre: string;
     tipo: string;
   } | null;
+  vuelo?: {
+    _id: string;
+    fecha: Date;
+    tipoCargo: "SALTO" | "ALQUILER";
+  };
 };
 
 const buildCuotaDescription = (mes: number, ano: number) => `Cuota social ${String(mes).padStart(2, "0")}/${ano}`;
+const buildVueloDescription = (tipoCargo: string) => (tipoCargo === vueloCargoTipo.ALQUILER ? "Alquiler de equipo" : "Salto de paracaídas");
 
 export class CuentaCorrienteController {
   static getMyAccountStatement = async (req: Request, res: Response) => {
     try {
       const userId = req.user!._id;
 
-      const [cuotas, movimientos] = await Promise.all([
+      const [cuotas, movimientos, vueloCargos] = await Promise.all([
         Cuota.find({ usuario: userId, enable: true }).sort({ ano: -1, mes: -1, createdAt: -1 }).lean(),
         MovimientoContable.find({ usuario: userId, enable: true })
           .sort({ fecha: -1, createdAt: -1 })
@@ -40,10 +47,20 @@ export class CuentaCorrienteController {
             { path: "createdBy", select: "name lastName email" },
           ])
           .lean(),
+        VueloCargo.find({ usuario: userId, enable: true })
+          .sort({ fecha: -1, createdAt: -1 })
+          .populate([
+            { path: "categoria", select: "nombre tipo key" },
+            { path: "vuelo", select: "fecha" },
+            { path: "pagoMovimiento", select: "fecha monto concepto tipo" },
+          ])
+          .lean(),
       ]);
 
       const cuotasPendientes = cuotas.filter((cuota) => cuota.estado === cuotaEstado.PENDIENTE);
       const cuotasAbonadas = cuotas.filter((cuota) => cuota.estado === cuotaEstado.PAGADA);
+      const cargosVuelosPendientes = vueloCargos.filter((cargo) => cargo.estado === vueloCargoEstado.PENDIENTE);
+      const cargosVuelosPagados = vueloCargos.filter((cargo) => cargo.estado === vueloCargoEstado.PAGADO);
 
       const cuotaItems: CuentaCorrienteItem[] = cuotas.map((cuota) => ({
         id: `cuota-${String(cuota._id)}`,
@@ -81,11 +98,39 @@ export class CuentaCorrienteController {
           : null,
       }));
 
-      const movimientosCuenta = [...cuotaItems, ...movimientoItems].sort(
+      const vueloItems: CuentaCorrienteItem[] = vueloCargos.map((cargo: any) => ({
+        id: `vuelo-cargo-${String(cargo._id)}`,
+        fecha: cargo.fecha,
+        descripcion: buildVueloDescription(cargo.tipoCargo),
+        detalle: cargo.categoria?.nombre || "Cargo de vuelo",
+        origen: "VUELO",
+        tipo: "DEBITO",
+        estado: cargo.estado,
+        monto: cargo.monto,
+        referenciaId: String(cargo._id),
+        categoria: cargo.categoria
+          ? {
+              _id: String(cargo.categoria._id),
+              nombre: cargo.categoria.nombre,
+              tipo: cargo.categoria.tipo,
+            }
+          : null,
+        vuelo: cargo.vuelo
+          ? {
+              _id: String(cargo.vuelo._id),
+              fecha: cargo.vuelo.fecha,
+              tipoCargo: cargo.tipoCargo,
+            }
+          : undefined,
+      }));
+
+      const movimientosCuenta = [...cuotaItems, ...vueloItems, ...movimientoItems].sort(
         (a, b) => new Date(b.fecha).getTime() - new Date(a.fecha).getTime(),
       );
 
       const saldoCuenta = movimientosCuenta.reduce((acc, item) => acc + (item.tipo === "CREDITO" ? item.monto : -item.monto), 0);
+      const montoVuelosPendientes = cargosVuelosPendientes.reduce((acc, cargo) => acc + cargo.monto, 0);
+      const deudaPendienteTotal = cuotasPendientes.reduce((acc, cuota) => acc + cuota.monto, 0) + montoVuelosPendientes;
 
       return res.status(200).json({
         data: {
@@ -93,6 +138,10 @@ export class CuentaCorrienteController {
             cuotasPendientes: cuotasPendientes.length,
             montoCuotasPendientes: cuotasPendientes.reduce((acc, cuota) => acc + cuota.monto, 0),
             cuotasAbonadas: cuotasAbonadas.length,
+            vuelosPendientes: cargosVuelosPendientes.length,
+            montoVuelosPendientes,
+            vuelosPagados: cargosVuelosPagados.length,
+            deudaPendienteTotal,
             saldoCuenta,
             totalMovimientos: movimientosCuenta.length,
           },

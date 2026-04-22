@@ -96,7 +96,7 @@ export default function CuentaCorrienteView() {
         </Link>
       </div>
 
-      <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+      <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-6">
         <article className={summaryCardClassName}>
           <div className="mb-4 inline-flex rounded-2xl bg-amber-100 p-3 text-amber-700">
             <Clock3 className="size-5" />
@@ -109,7 +109,7 @@ export default function CuentaCorrienteView() {
           <div className="mb-4 inline-flex rounded-2xl bg-rose-100 p-3 text-rose-700">
             <BadgeDollarSign className="size-5" />
           </div>
-          <p className="text-sm text-slate-500">Monto pendiente</p>
+          <p className="text-sm text-slate-500">Cuotas pendientes</p>
           <p className="mt-1 text-3xl font-semibold text-slate-900">
             {currencyFormatter.format(data.resumen.montoCuotasPendientes)}
           </p>
@@ -124,10 +124,30 @@ export default function CuentaCorrienteView() {
         </article>
 
         <article className={summaryCardClassName}>
+          <div className="mb-4 inline-flex rounded-2xl bg-orange-100 p-3 text-orange-700">
+            <BadgeDollarSign className="size-5" />
+          </div>
+          <p className="text-sm text-slate-500">Vuelos pendientes</p>
+          <p className="mt-1 text-3xl font-semibold text-slate-900">
+            {currencyFormatter.format(data.resumen.montoVuelosPendientes)}
+          </p>
+        </article>
+
+        <article className={summaryCardClassName}>
           <div className="mb-4 inline-flex rounded-2xl bg-sky-100 p-3 text-sky-700">
             <Wallet className="size-5" />
           </div>
-          <p className="text-sm text-slate-500">Saldo de cuenta</p>
+          <p className="text-sm text-slate-500">Deuda pendiente</p>
+          <p className={`mt-1 text-3xl font-semibold ${data.resumen.deudaPendienteTotal > 0 ? "text-rose-700" : "text-emerald-700"}`}>
+            {currencyFormatter.format(data.resumen.deudaPendienteTotal)}
+          </p>
+        </article>
+
+        <article className={summaryCardClassName}>
+          <div className="mb-4 inline-flex rounded-2xl bg-sky-100 p-3 text-sky-700">
+            <Wallet className="size-5" />
+          </div>
+          <p className="text-sm text-slate-500">Saldo histórico</p>
           <p className={`mt-1 text-3xl font-semibold ${data.resumen.saldoCuenta >= 0 ? "text-emerald-700" : "text-rose-700"}`}>
             {currencyFormatter.format(data.resumen.saldoCuenta)}
           </p>
@@ -186,7 +206,7 @@ export default function CuentaCorrienteView() {
                         </td>
 
                         <td className="px-4 py-3 text-sm text-slate-700">
-                          {movimiento.origen === "CUOTA" ? "Cuota" : "Movimiento contable"}
+                          {movimiento.origen === "CUOTA" ? "Cuota" : movimiento.origen === "VUELO" ? "Vuelo" : "Movimiento contable"}
                         </td>
 
                         <td className="px-4 py-3">

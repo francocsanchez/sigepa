@@ -1,6 +1,6 @@
 import useRoleGuard from "@/hooks/useRoleGuard";
 import { useQueryClient } from "@tanstack/react-query";
-import { BanknoteArrowUp, ChartColumn, LayoutDashboard, LogOut, Settings, UserCircle2 } from "lucide-react";
+import { BanknoteArrowUp, ChartColumn, LayoutDashboard, LogOut, Plane, Settings, UserCircle2 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 
@@ -22,9 +22,9 @@ const navigationItems: NavigationItem[] = [
     icon: BanknoteArrowUp,
   },
   {
-    label: "Reportes",
-    href: "/reports",
-    icon: ChartColumn,
+    label: "Vuelos",
+    href: "/vuelos",
+    icon: Plane,
   },
   {
     label: "Administración",
@@ -65,6 +65,7 @@ export default function MenuAppLayout() {
             if (item.href === "/config") return canShowConfig;
             if (item.href === "/reports") return canShowReports;
             if (item.href === "/contabilidad") return canShowAccounting;
+            if (item.href === "/vuelos") return canShowAccounting;
             return true;
           })
           .map((item) => {

@@ -1,4 +1,4 @@
-export type CuentaCorrienteOrigen = "CUOTA" | "MOVIMIENTO";
+export type CuentaCorrienteOrigen = "CUOTA" | "MOVIMIENTO" | "VUELO";
 export type CuentaCorrienteTipo = "DEBITO" | "CREDITO";
 export type CuentaCorrienteEstado = "PENDIENTE" | "PAGADA" | "REGISTRADO";
 
@@ -21,12 +21,21 @@ export type CuentaCorrienteMovimiento = {
     nombre: string;
     tipo: string;
   } | null;
+  vuelo?: {
+    _id: string;
+    fecha: string;
+    tipoCargo: "SALTO" | "ALQUILER";
+  };
 };
 
 export type CuentaCorrienteResumen = {
   cuotasPendientes: number;
   montoCuotasPendientes: number;
   cuotasAbonadas: number;
+  vuelosPendientes: number;
+  montoVuelosPendientes: number;
+  vuelosPagados: number;
+  deudaPendienteTotal: number;
   saldoCuenta: number;
   totalMovimientos: number;
 };

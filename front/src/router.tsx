@@ -20,6 +20,7 @@ import NoAutorizado from "./views/NoAutorizado";
 import MiPerfilView from "./views/auth/MiPerfilView";
 import RoleProtectedRoute from "./layouts/RoleProtectedRoute";
 import CuentaCorrienteView from "./views/auth/CuentaCorrienteView";
+import ListVuelosView from "./views/vuelos/ListVuelosView";
 
 export default function Router() {
   return (
@@ -47,6 +48,7 @@ export default function Router() {
               <Route path="/config/cuotas" element={<ListCuotasView />} />
               <Route path="/contabilidad" element={<ListMovimientosContablesView />} />
               <Route path="/contabilidad/create" element={<CreateMovimientoContableView />} />
+              <Route path="/vuelos" element={<ListVuelosView />} />
             </Route>
           </Route>
         </Route>
