@@ -19,6 +19,7 @@ import ProtectedRoute from "./layouts/ProtectedRoute";
 import NoAutorizado from "./views/NoAutorizado";
 import MiPerfilView from "./views/auth/MiPerfilView";
 import RoleProtectedRoute from "./layouts/RoleProtectedRoute";
+import CuentaCorrienteView from "./views/auth/CuentaCorrienteView";
 
 export default function Router() {
   return (
@@ -29,6 +30,7 @@ export default function Router() {
         <Route element={<ProtectedRoute />}>
           <Route element={<AppLayout />}>
             <Route path="/profile" element={<MiPerfilView />} />
+            <Route path="/profile/cuenta-corriente" element={<CuentaCorrienteView />} />
             <Route path="/no-autorizado" element={<NoAutorizado />} />
 
             <Route path="/config" element={<MenuConfigView />} />

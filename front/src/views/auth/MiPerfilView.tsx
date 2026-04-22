@@ -4,7 +4,7 @@ import { useAuth } from "@/hooks/useAuth";
 import type { UpdateMyProfileFormData, UsuarioMutationResponse } from "@/types/index";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
-import { Navigate, useNavigate } from "react-router-dom";
+import { Link, Navigate, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 
 type ChangePasswordFormData = {
@@ -108,6 +108,13 @@ export default function MiPerfilView() {
           <p className="text-sm font-medium text-primary">Mi perfil</p>
           <h2 className="text-2xl font-semibold tracking-tight text-slate-900">Datos de tu cuenta</h2>
         </div>
+
+        <Link
+          to="/profile/cuenta-corriente"
+          className="inline-flex items-center justify-center rounded-xl bg-primary px-4 py-2 text-sm font-semibold text-white transition hover:bg-primary-dark"
+        >
+          Cuenta corriente
+        </Link>
       </div>
 
       <div className="space-y-6">
