@@ -1,6 +1,6 @@
 import useRoleGuard from "@/hooks/useRoleGuard";
 import { useQueryClient } from "@tanstack/react-query";
-import { BanknoteArrowUp, ChartColumn, LayoutDashboard, LogOut, Plane, Settings, UserCircle2 } from "lucide-react";
+import { BanknoteArrowUp, LayoutDashboard, LogOut, Plane, Settings, UserCircle2 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 

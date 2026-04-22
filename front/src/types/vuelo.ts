@@ -94,3 +94,25 @@ export type PagarVuelosResponse = {
   data: VueloCargo[];
   message: string;
 };
+
+export type MiVuelo = {
+  _id: string;
+  fecha: string;
+  pilotos: Pick<Usuario, "_id" | "name" | "lastName" | "email" | "role" | "enable">[];
+  miSalto: {
+    alquiler: number;
+    valorSalto: number;
+    tipoSalto: VueloTipoSalto;
+  } | null;
+  companeros: Pick<Usuario, "_id" | "name" | "lastName" | "email" | "role" | "enable">[];
+  cargos: VueloCargo[];
+  resumenCobranza: {
+    total: number;
+    pendiente: number;
+    pagado: number;
+  };
+};
+
+export type MisVuelosResponse = {
+  data: MiVuelo[];
+};

@@ -1,59 +1,69 @@
+import LoadingSpinner from "@/components/LoadingSpinner";
+import { lazy, Suspense } from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import AppLayout from "@/layouts/AppLayout";
-import MenuConfigView from "./views/MenuConfigView";
-import ListUsuariosView from "./views/usuarios/ListUsuariosView";
-import CreateUsuarioView from "./views/usuarios/CreateUsuarioView";
-import EditUsuarioView from "./views/usuarios/EditUsuarioView";
-import UsuarioView from "./views/usuarios/UsuarioView";
-import ListCategoriasContablesView from "./views/categorias-contables/ListCategoriasContablesView";
-import CreateCategoriaContableView from "./views/categorias-contables/CreateCategoriaContableView";
-import EditCategoriaContableView from "./views/categorias-contables/EditCategoriaContableView";
-import CategoriaContableView from "./views/categorias-contables/CategoriaContableView";
-import ListMovimientosContablesView from "./views/movimientos-contables/ListMovimientosContablesView";
-import CreateMovimientoContableView from "./views/movimientos-contables/CreateMovimientoContableView";
-import ListCuotasView from "./views/cuotas/ListCuotasView";
-
-import LoginView from "./views/auth/LoginView";
-import NotFound from "./views/NotFound";
 import ProtectedRoute from "./layouts/ProtectedRoute";
-import NoAutorizado from "./views/NoAutorizado";
-import MiPerfilView from "./views/auth/MiPerfilView";
 import RoleProtectedRoute from "./layouts/RoleProtectedRoute";
-import CuentaCorrienteView from "./views/auth/CuentaCorrienteView";
-import ListVuelosView from "./views/vuelos/ListVuelosView";
+
+const DashboardView = lazy(() => import("./views/DashboardView"));
+const MenuConfigView = lazy(() => import("./views/MenuConfigView"));
+const ListUsuariosView = lazy(() => import("./views/usuarios/ListUsuariosView"));
+const CreateUsuarioView = lazy(() => import("./views/usuarios/CreateUsuarioView"));
+const EditUsuarioView = lazy(() => import("./views/usuarios/EditUsuarioView"));
+const UsuarioView = lazy(() => import("./views/usuarios/UsuarioView"));
+const ListCategoriasContablesView = lazy(() => import("./views/categorias-contables/ListCategoriasContablesView"));
+const CreateCategoriaContableView = lazy(() => import("./views/categorias-contables/CreateCategoriaContableView"));
+const EditCategoriaContableView = lazy(() => import("./views/categorias-contables/EditCategoriaContableView"));
+const CategoriaContableView = lazy(() => import("./views/categorias-contables/CategoriaContableView"));
+const ListMovimientosContablesView = lazy(() => import("./views/movimientos-contables/ListMovimientosContablesView"));
+const CreateMovimientoContableView = lazy(() => import("./views/movimientos-contables/CreateMovimientoContableView"));
+const ListCuotasView = lazy(() => import("./views/cuotas/ListCuotasView"));
+const LoginView = lazy(() => import("./views/auth/LoginView"));
+const NotFound = lazy(() => import("./views/NotFound"));
+const NoAutorizado = lazy(() => import("./views/NoAutorizado"));
+const MiPerfilView = lazy(() => import("./views/auth/MiPerfilView"));
+const MisVuelosView = lazy(() => import("./views/auth/MisVuelosView"));
+const CuentaCorrienteView = lazy(() => import("./views/auth/CuentaCorrienteView"));
+const ListVuelosView = lazy(() => import("./views/vuelos/ListVuelosView"));
+
+const RouteFallback = <LoadingSpinner label="Cargando vista..." className="min-h-screen" />;
 
 export default function Router() {
   return (
     <BrowserRouter>
-      <Routes>
-        <Route path="/login" element={<LoginView />} />
+      <Suspense fallback={RouteFallback}>
+        <Routes>
+          <Route path="/login" element={<LoginView />} />
 
-        <Route element={<ProtectedRoute />}>
-          <Route element={<AppLayout />}>
-            <Route path="/profile" element={<MiPerfilView />} />
-            <Route path="/profile/cuenta-corriente" element={<CuentaCorrienteView />} />
-            <Route path="/no-autorizado" element={<NoAutorizado />} />
+          <Route element={<ProtectedRoute />}>
+            <Route element={<AppLayout />}>
+              <Route path="/" element={<DashboardView />} />
+              <Route path="/profile" element={<MiPerfilView />} />
+              <Route path="/profile/vuelos" element={<MisVuelosView />} />
+              <Route path="/profile/cuenta-corriente" element={<CuentaCorrienteView />} />
+              <Route path="/no-autorizado" element={<NoAutorizado />} />
 
-            <Route path="/config" element={<MenuConfigView />} />
-            <Route path="/config/usuarios" element={<ListUsuariosView />} />
-            <Route path="/config/usuarios/create" element={<CreateUsuarioView />} />
-            <Route path="/config/usuarios/:idUsuario" element={<UsuarioView />} />
-            <Route path="/config/usuarios/:idUsuario/editar" element={<EditUsuarioView />} />
-            <Route path="/config/categorias-contables" element={<ListCategoriasContablesView />} />
-            <Route path="/config/categorias-contables/create" element={<CreateCategoriaContableView />} />
-            <Route path="/config/categorias-contables/:idCategoriaContable" element={<CategoriaContableView />} />
-            <Route path="/config/categorias-contables/:idCategoriaContable/editar" element={<EditCategoriaContableView />} />
+              <Route path="/config" element={<MenuConfigView />} />
+              <Route path="/config/usuarios" element={<ListUsuariosView />} />
+              <Route path="/config/usuarios/create" element={<CreateUsuarioView />} />
+              <Route path="/config/usuarios/:idUsuario" element={<UsuarioView />} />
+              <Route path="/config/usuarios/:idUsuario/editar" element={<EditUsuarioView />} />
+              <Route path="/config/categorias-contables" element={<ListCategoriasContablesView />} />
+              <Route path="/config/categorias-contables/create" element={<CreateCategoriaContableView />} />
+              <Route path="/config/categorias-contables/:idCategoriaContable" element={<CategoriaContableView />} />
+              <Route path="/config/categorias-contables/:idCategoriaContable/editar" element={<EditCategoriaContableView />} />
 
-            <Route element={<RoleProtectedRoute allowedRoles={["admin", "secretaria", "contable"]} />}>
-              <Route path="/config/cuotas" element={<ListCuotasView />} />
-              <Route path="/contabilidad" element={<ListMovimientosContablesView />} />
-              <Route path="/contabilidad/create" element={<CreateMovimientoContableView />} />
-              <Route path="/vuelos" element={<ListVuelosView />} />
+              <Route element={<RoleProtectedRoute allowedRoles={["admin", "secretaria", "contable"]} />}>
+                <Route path="/config/cuotas" element={<ListCuotasView />} />
+                <Route path="/contabilidad" element={<ListMovimientosContablesView />} />
+                <Route path="/contabilidad/create" element={<CreateMovimientoContableView />} />
+                <Route path="/vuelos" element={<ListVuelosView />} />
+              </Route>
             </Route>
           </Route>
-        </Route>
-        <Route path="*" element={<NotFound />} />
-      </Routes>
+          <Route path="*" element={<NotFound />} />
+        </Routes>
+      </Suspense>
     </BrowserRouter>
   );
 }

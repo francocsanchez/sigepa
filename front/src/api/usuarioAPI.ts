@@ -2,6 +2,9 @@ import api from "@/libs/axios";
 import type {
   AuthenticatedUser,
   AuthenticatedUserResponse,
+  Dashboard360,
+  Dashboard360Response,
+  ImageKitAuthResponse,
   UpdateUsuarioByIdParams,
   Usuario,
   UsuarioFormData,
@@ -85,4 +88,30 @@ export async function getMe(): Promise<AuthenticatedUser | null> {
 
   const { data } = await api.get<AuthenticatedUserResponse>("/usuarios/me");
   return data.data;
+}
+
+export async function getMyDashboard(): Promise<Dashboard360> {
+  try {
+    const { data } = await api.get<Dashboard360Response>("/usuarios/me/dashboard");
+    return data.data;
+  } catch (error) {
+    if (isAxiosError(error) && error.response) {
+      throw new Error(error.response.data.error || error.response.data.message || "Error al obtener el dashboard");
+    }
+
+    throw new Error("Error al obtener el dashboard");
+  }
+}
+
+export async function getProfileImageAuth() {
+  try {
+    const { data } = await api.get<ImageKitAuthResponse>("/usuarios/me/profile-image/auth");
+    return data.data;
+  } catch (error) {
+    if (isAxiosError(error) && error.response) {
+      throw new Error(error.response.data.error || error.response.data.message || "Error al obtener credenciales de upload");
+    }
+
+    throw new Error("Error al obtener credenciales de upload");
+  }
 }

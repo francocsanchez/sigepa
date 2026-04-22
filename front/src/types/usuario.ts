@@ -20,6 +20,13 @@ export type Usuario = {
   obraSocial: string;
   enable: boolean;
   role: UsuarioRole[];
+  profileImage?: {
+    fileId: string;
+    url: string;
+    thumbnailUrl?: string;
+    filePath?: string;
+    uploadedAt?: string;
+  } | null;
   createdAt?: string;
   updatedAt?: string;
 };
@@ -57,6 +64,46 @@ export type UpdateMyProfileFormData = {
   obraSocial: string;
 };
 
+export type Dashboard360 = {
+  perfil: {
+    name: string;
+    lastName: string;
+    email: string;
+    dni: number;
+    licenciaFAP: string;
+    fechaVencimientoLicencia: string;
+    fechaVencimientoCMA: string;
+    role: UsuarioRole[];
+    profileImage?: Usuario["profileImage"];
+  };
+  cuentaCorriente: {
+    deudaTotal: number;
+    deudaCuotas: number;
+    deudaVuelos: number;
+    cuotaDelMes: {
+      mes: number;
+      ano: number;
+      monto: number;
+      estado: "PENDIENTE" | "PAGADA";
+    } | null;
+    cuotasAtrasadas: number;
+  };
+  saltos: {
+    cantidadMes: number;
+    cantidadAno: number;
+    cantidadTotal: number;
+    porMes: Array<{
+      month: string;
+      monthIndex: number;
+      saltos: number;
+    }>;
+    porTipo: Array<{
+      tipo: string;
+      cantidad: number;
+    }>;
+  };
+};
+
 export type UsuarioListResponse = {
   data: Usuario[];
 };
@@ -76,6 +123,21 @@ export type AuthenticatedUser = Usuario;
 export type AuthenticatedUserResponse = {
   data: AuthenticatedUser;
   message: string;
+};
+
+export type Dashboard360Response = {
+  data: Dashboard360;
+  message?: string;
+};
+
+export type ImageKitAuthResponse = {
+  data: {
+    token: string;
+    expire: number;
+    signature: string;
+    publicKey: string;
+  };
+  message?: string;
 };
 
 export type UpdateUsuarioByIdParams = {

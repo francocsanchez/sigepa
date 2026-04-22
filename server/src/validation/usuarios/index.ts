@@ -93,3 +93,10 @@ export const updateMyProfileValidationUsuario = [
   body("grupoSanguineo").optional().trim(),
   body("obraSocial").optional().trim(),
 ];
+
+export const updateMyProfileImageValidationUsuario = [
+  body("fileId").notEmpty().withMessage("El fileId es obligatorio").trim(),
+  body("url").notEmpty().withMessage("La URL es obligatoria").isURL().withMessage("La URL no es válida").trim(),
+  body("thumbnailUrl").optional().isURL().withMessage("La miniatura no es válida").trim(),
+  body("filePath").optional().trim(),
+];

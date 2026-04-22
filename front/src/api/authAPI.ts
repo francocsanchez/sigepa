@@ -50,3 +50,21 @@ export async function updateMyProfile(formData: UpdateMyProfileFormData): Promis
     throw new Error("Error al actualizar el perfil");
   }
 }
+
+export async function updateMyProfileImage(formData: {
+  fileId: string;
+  url: string;
+  thumbnailUrl?: string;
+  filePath?: string;
+}): Promise<UsuarioMutationResponse> {
+  try {
+    const { data } = await api.put<UsuarioMutationResponse>("/usuarios/me/profile-image", formData);
+    return data;
+  } catch (error) {
+    if (isAxiosError(error)) {
+      throw new Error(error.response?.data?.error || error.response?.data?.message || "Error al actualizar la foto de perfil");
+    }
+
+    throw new Error("Error al actualizar la foto de perfil");
+  }
+}

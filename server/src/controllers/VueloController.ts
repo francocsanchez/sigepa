@@ -105,6 +105,29 @@ const buildFlightCargoSummary = (cargos: any[]) =>
     { total: 0, pendiente: 0, pagado: 0 },
   );
 
+const buildUserFlightSummary = (vuelo: any, userId: string, cargos: any[]) => {
+  const miParticipacion = vuelo.paracaidistas.find((item: any) => String(item.usuario?._id || item.usuario) === userId);
+  const companeros = vuelo.paracaidistas
+    .filter((item: any) => String(item.usuario?._id || item.usuario) !== userId)
+    .map((item: any) => item.usuario);
+
+  return {
+    _id: String(vuelo._id),
+    fecha: vuelo.fecha,
+    pilotos: vuelo.pilotos,
+    miSalto: miParticipacion
+      ? {
+          alquiler: miParticipacion.alquiler,
+          valorSalto: miParticipacion.valorSalto,
+          tipoSalto: miParticipacion.tipoSalto,
+        }
+      : null,
+    companeros,
+    cargos,
+    resumenCobranza: buildFlightCargoSummary(cargos),
+  };
+};
+
 export class VueloController {
   static getAll = async (_req: Request, res: Response) => {
     try {
@@ -342,6 +365,49 @@ export class VueloController {
       });
     } catch (error) {
       logError("VueloController.payCharges");
+      console.error(error);
+      return res.status(500).json({
+        data: null,
+        message: "Error del servidor",
+      });
+    }
+  };
+
+  static getMine = async (req: Request, res: Response) => {
+    try {
+      const userId = req.user!._id;
+
+      const vuelos = await Vuelo.find({
+        enable: true,
+        "paracaidistas.usuario": userId,
+      })
+        .sort({ fecha: -1, createdAt: -1 })
+        .populate(VUELO_POPULATE)
+        .lean();
+
+      const vueloIds = vuelos.map((vuelo) => vuelo._id);
+      const cargos = await VueloCargo.find({
+        enable: true,
+        vuelo: { $in: vueloIds },
+        usuario: userId,
+      })
+        .populate(CARGO_POPULATE)
+        .lean();
+
+      const cargosByVuelo = new Map<string, any[]>();
+
+      cargos.forEach((cargo) => {
+        const vueloId = String(cargo.vuelo?._id || cargo.vuelo);
+        const bucket = cargosByVuelo.get(vueloId) || [];
+        bucket.push(cargo);
+        cargosByVuelo.set(vueloId, bucket);
+      });
+
+      return res.status(200).json({
+        data: vuelos.map((vuelo) => buildUserFlightSummary(vuelo, String(userId), cargosByVuelo.get(String(vuelo._id)) || [])),
+      });
+    } catch (error) {
+      logError("VueloController.getMine");
       console.error(error);
       return res.status(500).json({
         data: null,

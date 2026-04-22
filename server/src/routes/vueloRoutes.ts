@@ -9,6 +9,7 @@ const router = Router();
 router.use(authenticate);
 
 router.get("/", VueloController.getAll);
+router.get("/mis-vuelos", VueloController.getMine);
 router.get("/cargos/pendientes", VueloController.getPendingCharges);
 router.post("/", createValidationVuelo, handleImputErrors, VueloController.create);
 router.post("/cargos/pagar", payVueloCargoValidation, handleImputErrors, VueloController.payCharges);

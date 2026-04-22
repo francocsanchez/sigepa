@@ -2,6 +2,8 @@ import api from "@/libs/axios";
 import type {
   PagarVuelosPayload,
   PagarVuelosResponse,
+  MiVuelo,
+  MisVuelosResponse,
   Vuelo,
   VueloCargo,
   VueloCargoListResponse,
@@ -21,6 +23,19 @@ export async function getVuelos(): Promise<Vuelo[]> {
     }
 
     throw new Error("Error al obtener los vuelos");
+  }
+}
+
+export async function getMisVuelos(): Promise<MiVuelo[]> {
+  try {
+    const { data } = await api.get<MisVuelosResponse>("/vuelos/mis-vuelos");
+    return data.data;
+  } catch (error) {
+    if (isAxiosError(error) && error.response) {
+      throw new Error(error.response.data.error || error.response.data.message || "Error al obtener tus vuelos");
+    }
+
+    throw new Error("Error al obtener tus vuelos");
   }
 }
 

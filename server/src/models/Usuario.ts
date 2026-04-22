@@ -30,7 +30,25 @@ export interface IUsuario extends Document {
   contactoEmergencia: string;
   grupoSanguineo: string;
   obraSocial: string;
+  profileImage?: {
+    fileId: string;
+    url: string;
+    thumbnailUrl?: string;
+    filePath?: string;
+    uploadedAt?: Date;
+  } | null;
 }
+
+const UsuarioProfileImageSchema = new Schema(
+  {
+    fileId: { type: String, required: true, trim: true },
+    url: { type: String, required: true, trim: true },
+    thumbnailUrl: { type: String, trim: true },
+    filePath: { type: String, trim: true },
+    uploadedAt: { type: Date, default: Date.now },
+  },
+  { _id: false },
+);
 
 const UsuarioSchema: Schema = new Schema<IUsuario>(
   {
@@ -54,6 +72,7 @@ const UsuarioSchema: Schema = new Schema<IUsuario>(
       type: [String],
       default: ["socio"],
     },
+    profileImage: { type: UsuarioProfileImageSchema, default: null },
   },
   {
     timestamps: true,

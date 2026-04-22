@@ -6,6 +6,7 @@ import {
   forgotPasswordValidationUsuario,
   idValidationUsuario,
   updateMyProfileValidationUsuario,
+  updateMyProfileImageValidationUsuario,
   updateValidationUsuario,
 } from "../validation/usuarios";
 import { authenticate } from "../middleware/authenticate";
@@ -35,6 +36,8 @@ router.post("/forgot-password", forgotPasswordValidationUsuario, handleImputErro
  * @description Obtiene los datos del usuario autenticado.
  */
 router.get("/me", authenticate, UsuarioController.getMe);
+router.get("/me/dashboard", authenticate, UsuarioController.getMyDashboard);
+router.get("/me/profile-image/auth", authenticate, UsuarioController.getProfileImageAuth);
 
 /**
  * @method PATCH
@@ -43,6 +46,7 @@ router.get("/me", authenticate, UsuarioController.getMe);
  * @description Actualiza los datos editables del usuario autenticado.
  */
 router.patch("/me", authenticate, updateMyProfileValidationUsuario, handleImputErrors, UsuarioController.updateMe);
+router.put("/me/profile-image", authenticate, updateMyProfileImageValidationUsuario, handleImputErrors, UsuarioController.saveMyProfileImage);
 
 /**
  * @method GET
