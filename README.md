@@ -1,125 +1,315 @@
-# x0y0 – API Base (Express + TypeScript + Mongoose)
+# SIGEPA
 
-API RESTful construida con **Express**, **TypeScript** y **Mongoose (MongoDB)**.  
-Este proyecto es la base de una aplicación escalable, lista para extender con más modelos, controladores y middlewares.
+SIGEPA es un sistema de gestión interna para un club u operación de paracaidismo. Centraliza en una sola aplicación la administración de usuarios, cuotas, movimientos contables, vuelos, cuenta corriente de cada socio y la configuración operativa del sistema.
 
----
+El proyecto está dividido en:
 
-## 🚀 Características
+- `front/`: aplicación web en React + TypeScript.
+- `server/`: API REST en Express + TypeScript + MongoDB.
 
-- Backend con **Express**.
-- Tipado completo con **TypeScript**.
-- Conexión a **MongoDB** usando Mongoose.
-- Arquitectura basada en controladores.
-- Middleware para logging (morgan) y parsing de JSON.
-- Scripts separados para desarrollo y producción.
+## Qué hace el sistema
 
----
+SIGEPA cubre los flujos principales de administración y operación:
 
-## 📂 Estructura del proyecto
+- Autenticación de usuarios y perfil personal.
+- Dashboard con resumen operativo y financiero.
+- Gestión de usuarios con roles y habilitación/deshabilitación.
+- Gestión de categorías contables.
+- Registro manual de movimientos contables y balance general.
+- Generación y seguimiento de cuotas sociales.
+- Registro de vuelos con pilotos y paracaidistas.
+- Generación de cargos por vuelo y alquiler de equipo.
+- Cobro de cargos pendientes con impacto contable automático.
+- Cuenta corriente personal para cada usuario.
+- Historial de vuelos personales.
+- Configuración general del sistema.
 
-```
-x0y0_NoSql/
+## Módulos principales
+
+### Dashboard
+
+Muestra una vista general del estado del sistema y del perfil del usuario autenticado, incluyendo métricas personales y accesos rápidos.
+
+### Usuarios
+
+Permite:
+
+- listar usuarios;
+- crear usuarios;
+- editar usuarios;
+- ver detalle;
+- cambiar estado de habilitación;
+- administrar roles.
+
+Cada usuario puede almacenar, entre otros datos:
+
+- nombre y apellido;
+- email;
+- DNI;
+- teléfono;
+- licencia FAP;
+- vencimiento de CMA;
+- vencimiento de licencia;
+- datos de contacto y perfil.
+
+### Contabilidad
+
+Incluye:
+
+- categorías contables;
+- alta y edición de movimientos;
+- balance contable acumulado;
+- visualización de ingresos y egresos.
+
+Cuando se cobra un cargo de vuelo, el sistema registra automáticamente un ingreso contable asociado.
+
+### Cuotas
+
+Permite administrar las cuotas sociales por período y consultar el estado de deuda de los usuarios.
+
+### Vuelos
+
+Permite:
+
+- registrar vuelos;
+- asignar uno o dos pilotos;
+- cargar paracaidistas por vuelo;
+- cargar valor de salto y alquiler;
+- generar cargos pendientes;
+- registrar pagos;
+- consultar historial de vuelos;
+- ver una tabla simplificada de todos los vuelos;
+- consultar el detalle de cada vuelo.
+
+Además, cada usuario puede consultar sus propios vuelos desde su perfil.
+
+### Cuenta corriente
+
+Cada usuario autenticado puede ver su deuda y el estado de sus cargos, tanto por cuotas como por vuelos.
+
+### Configuración
+
+El backend incluye un módulo de configuración general del sistema para inicialización y actualización de parámetros globales.
+
+## Roles y permisos
+
+El sistema trabaja con roles de usuario. Actualmente existen estos roles en el modelo:
+
+- `admin`
+- `secretaria`
+- `instructor`
+- `paracaidista`
+- `socio`
+- `piloto`
+- `contable`
+
+En el frontend ya están aplicadas restricciones de navegación y acceso por ruta para distintas secciones, por ejemplo dashboard, contabilidad, vuelos y administración.
+
+## Arquitectura
+
+### Frontend
+
+Stack principal:
+
+- React 19
+- TypeScript
+- Vite
+- React Router
+- TanStack Query
+- React Hook Form
+- Tailwind CSS
+- Axios
+- Recharts
+
+Responsabilidades:
+
+- interfaz de usuario;
+- navegación por vistas;
+- consumo de la API;
+- control de sesión en cliente;
+- formularios y validaciones básicas;
+- dashboards, tablas y vistas operativas.
+
+### Backend
+
+Stack principal:
+
+- Node.js
+- Express 5
+- TypeScript
+- MongoDB
+- Mongoose
+- JWT
+- bcrypt
+- express-validator
+- nodemailer
+
+Responsabilidades:
+
+- autenticación;
+- validación de requests;
+- acceso a MongoDB;
+- reglas de negocio;
+- generación de cargos y asientos relacionados;
+- exposición de endpoints REST para frontend.
+
+## Estructura del proyecto
+
+```text
+sigepa/
+├── front/
+│   ├── src/
+│   │   ├── api/                  # Clientes HTTP por módulo
+│   │   ├── components/           # Componentes reutilizables
+│   │   ├── hooks/                # Hooks de auth y permisos
+│   │   ├── layouts/              # Layouts y guards
+│   │   ├── types/                # Tipos compartidos del frontend
+│   │   ├── views/                # Pantallas del sistema
+│   │   └── router.tsx            # Rutas del frontend
+│   └── package.json
 ├── server/
 │   ├── src/
-│   │   ├── index.ts          # Entry point (conexión a DB + server.listen)
-│   │   ├── server.ts         # Configuración de Express
-│   │   ├── models/           # Modelos de Mongoose (ej: Usuario.ts)
-│   │   ├── controllers/      # Controladores de rutas (ej: UsuarioController.ts)
-│   │   └── routes/           # Definición de endpoints
-│   ├── package.json
-│   ├── tsconfig.json
-│   └── ...
-└── cliente/                  # (frontend en React, aún no implementado)
+│   │   ├── config/               # Mongo y CORS
+│   │   ├── controllers/          # Lógica por recurso
+│   │   ├── helpers/              # JWT, mail, balance, hashing, etc.
+│   │   ├── middleware/           # Auth y validaciones
+│   │   ├── models/               # Modelos Mongoose
+│   │   ├── routes/               # Endpoints REST
+│   │   ├── templates/            # Templates de email
+│   │   ├── utils/                # Utilidades varias
+│   │   ├── server.ts             # App Express
+│   │   └── index.ts              # Bootstrap del servidor
+│   └── package.json
+└── README.md
 ```
 
----
+## Endpoints del backend
 
-## 🛠️ Requisitos previos
+Los recursos principales expuestos por la API son:
 
-- [Node.js](https://nodejs.org/) (v20 o superior recomendado)
-- [MongoDB](https://www.mongodb.com/) en local o en la nube (ej. Atlas)
-- npm (incluido con Node)
+- `/api/usuarios`
+- `/api/configuracion`
+- `/api/categorias-contables`
+- `/api/movimientos-contables`
+- `/api/cuotas`
+- `/api/cuenta-corriente`
+- `/api/vuelos`
 
----
+## Requisitos
 
-## ⚙️ Instalación
+- Node.js 20+ recomendado
+- npm
+- MongoDB local o remoto
 
-1. Clonar el repositorio:
+## Variables de entorno
 
-   ```bash
-   git clone https://github.com/francocsanchez/x0y0_noSql.git
-   cd x0y0_noSql/server
-   ```
+### Backend
 
-2. Instalar dependencias:
+Crear `server/.env`:
 
-   ```bash
-   npm install
-   ```
+```env
+PORT=4001
+DATABASE_MONGO=mongodb://localhost:27017/sigepa
+JWT_SECRET=tu_clave
+FRONTEND_URL=http://localhost:5173
 
-3. Crear un archivo `.env` en `server/` con tus variables:
-   ```env
-   PORT=4000
-   MONGO_URI=mongodb://localhost:27017/x0y0_db
-   NODE_ENV=development
-   ```
+SMTP_HOST=
+SMTP_PORT=
+SMTP_USER=
+SMTP_PASS=
+SMTP_FROM_NAME=SIGEPA
+SMTP_FROM_EMAIL=no-reply@sigepa.local
 
----
+IMAGEKIT_PUBLIC_KEY=
+IMAGEKIT_PRIVATE_KEY=
+```
 
-## ▶️ Scripts disponibles
+### Frontend
 
-En la carpeta `server/`:
+Crear `front/.env.local`:
 
-- **Desarrollo (con hot reload):**
-  ```bash
-  npm run dev
-  ```
-- **Build (compila a JS en `dist/`):**
-  ```bash
-  npm run build
-  ```
-- **Producción (ejecuta el build):**
-  ```bash
-  npm start
-  ```
+```env
+VITE_API_URL=http://localhost:4001/api
+```
 
----
+## Instalación
 
-## 📡 Endpoints básicos
+### 1. Clonar el repositorio
 
-- **GET** `/api/usuarios` → listado de usuarios
+```bash
+git clone <repo>
+cd sigepa
+```
 
----
+### 2. Instalar dependencias
 
-## 🤝 Contribuir
+```bash
+cd server && npm install
+cd ../front && npm install
+```
 
-1. Hacé un **fork** del proyecto.
-2. Creá una nueva rama (`git checkout -b feature/nueva-feature`).
-3. Commit de los cambios con un mensaje claro (`git commit -m "feat: agregar middleware de auth"`).
-4. Push a la rama (`git push origin feature/nueva-feature`).
-5. Abrí un **Pull Request**.
+## Ejecución en desarrollo
 
-### Convenciones de commits
+### Backend
 
-Se recomienda usar [Conventional Commits](https://www.conventionalcommits.org/):
+```bash
+cd server
+npm run dev
+```
 
-- `feat:` nueva funcionalidad
-- `fix:` corrección de bug
-- `docs:` cambios en documentación
-- `refactor:` cambios de código sin alterar comportamiento
-- `test:` cambios o agregados en tests
+### Frontend
 
----
+```bash
+cd front
+npm run dev
+```
 
-## 📖 Próximos pasos
+Con la configuración actual, el frontend espera la API en `http://localhost:4001/api`.
 
-- Implementar middlewares de validación y autenticación.
-- Crear tests automatizados.
-- Conectar el frontend (`/cliente`) en React.
+## Build
 
----
+### Backend
 
-## 📜 Licencia
+```bash
+cd server
+npm run build
+npm start
+```
 
-MIT © 2025 [Franco Sanchez]
+### Frontend
+
+```bash
+cd front
+npm run build
+```
+
+## Scripts disponibles
+
+### `server/`
+
+- `npm run dev`: levanta el backend con nodemon.
+- `npm run build`: compila TypeScript a `dist/`.
+- `npm start`: ejecuta el build compilado.
+
+### `front/`
+
+- `npm run dev`: levanta Vite en desarrollo.
+- `npm run build`: compila TypeScript y genera el build productivo.
+- `npm run lint`: ejecuta ESLint.
+- `npm run preview`: sirve el build generado.
+
+## Notas funcionales importantes
+
+- La contraseña inicial de los usuarios creados desde el backend se genera a partir del DNI.
+- Los vuelos generan cargos por salto y/o alquiler.
+- El cobro de esos cargos impacta en contabilidad.
+- Existen vistas personales y vistas administrativas separadas.
+- El sistema usa roles tanto para navegación como para protección de rutas.
+
+## Estado actual del proyecto
+
+El proyecto ya no es una base vacía: tiene frontend, backend, autenticación, módulos de negocio y flujo operativo real para administración del club.
+
+## Licencia
+
+Uso interno del proyecto, salvo que se defina otra licencia más adelante.
