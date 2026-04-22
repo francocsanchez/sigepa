@@ -1,13 +1,16 @@
 import { changeStatusUsuario, getUsuarios } from "@/api/usuarioAPI";
 import LoadingSpinner from "@/components/LoadingSpinner";
+import Pagination from "@/components/Pagination";
 import type { UsuarioMutationResponse } from "@/types/index";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Eye, Pencil, Plus, ShieldCheck, ShieldOff } from "lucide-react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { toast } from "sonner";
 
 export default function ListUsuariosView() {
   const queryClient = useQueryClient();
+  const [currentPage, setCurrentPage] = useState(1);
 
   const {
     data: usuarios,
@@ -29,6 +32,16 @@ export default function ListUsuariosView() {
     },
   });
 
+  const pageSize = 30;
+  const totalUsuarios = usuarios?.length || 0;
+  const totalPages = Math.max(1, Math.ceil(totalUsuarios / pageSize));
+
+  useEffect(() => {
+    if (currentPage > totalPages) {
+      setCurrentPage(totalPages);
+    }
+  }, [currentPage, totalPages]);
+
   if (isLoading) {
     return <LoadingSpinner label="Cargando usuarios..." />;
   }
@@ -41,7 +54,9 @@ export default function ListUsuariosView() {
     );
   }
 
-  if (usuarios)
+  if (usuarios) {
+    const paginatedUsuarios = usuarios.slice((currentPage - 1) * pageSize, currentPage * pageSize);
+
     return (
       <>
         <div className="mb-6 flex flex-col gap-4 border-b border-secondary-dark/60 pb-5 sm:flex-row sm:items-end sm:justify-between">
@@ -75,7 +90,7 @@ export default function ListUsuariosView() {
                 </thead>
 
                 <tbody className="divide-y divide-secondary-dark/40">
-                  {usuarios.map((usuario) => (
+                  {paginatedUsuarios.map((usuario) => (
                     <tr key={usuario._id} className="transition-colors hover:bg-secondary/20">
                       <td className="px-4 py-3">
                         <p className="text-sm font-medium capitalize text-slate-800">{usuario.lastName}</p>
@@ -138,15 +153,24 @@ export default function ListUsuariosView() {
                           </button>
                         </div>
                       </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+
+              <Pagination
+                currentPage={currentPage}
+                onPageChange={setCurrentPage}
+                pageSize={pageSize}
+                totalItems={usuarios.length}
+                itemLabel="usuarios"
+              />
             </div>
           </div>
-        </div>
       </>
     );
+  }
 
   return null;
 }

@@ -1,32 +1,42 @@
-import useRoleGuard from "@/hooks/useRoleGuard";
+import { useAuth } from "@/hooks/useAuth";
 import { ChevronRight, FolderOpen, HandCoins, Users } from "lucide-react";
+import type { UsuarioRole } from "@/types/index";
 import { Link } from "react-router-dom";
 
-const configItems = [
+const configItems: Array<{
+  title: string;
+  description: string;
+  href: string;
+  icon: typeof Users;
+  allowedRoles: UsuarioRole[];
+}> = [
   {
     title: "Usuarios",
     description: "Configura accesos, permisos y cuentas del equipo.",
     href: "/config/usuarios",
     icon: Users,
+    allowedRoles: ["admin"],
   },
   {
     title: "Categorías contables",
     description: "Administrá las categorías para ingresos, egresos y usos mixtos.",
     href: "/config/categorias-contables",
     icon: FolderOpen,
+    allowedRoles: ["admin"],
   },
   {
     title: "Cuotas",
     description: "Generá y consultá las cuotas sociales por año y por mes.",
     href: "/config/cuotas",
     icon: HandCoins,
-    allowedRoles: ["admin", "secretaria", "contable"],
+    allowedRoles: ["admin", "secretaria"],
   },
 ];
 
 export default function MenuConfigView() {
-  const { allowed: canManageCuotas } = useRoleGuard(["admin", "secretaria", "contable"]);
-  const visibleItems = configItems.filter((item) => !item.allowedRoles || canManageCuotas);
+  const { user } = useAuth();
+  const userRoles = user?.role ?? [];
+  const visibleItems = configItems.filter((item) => item.allowedRoles.some((role) => userRoles.includes(role)));
 
   return (
     <>

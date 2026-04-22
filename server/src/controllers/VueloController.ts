@@ -172,6 +172,43 @@ export class VueloController {
     }
   };
 
+  static getById = async (req: Request, res: Response) => {
+    try {
+      const { idVuelo } = req.params;
+
+      const vuelo = await Vuelo.findOne({ _id: idVuelo, enable: true }).populate(VUELO_POPULATE).lean();
+
+      if (!vuelo) {
+        return res.status(404).json({
+          data: null,
+          message: "Vuelo no encontrado",
+        });
+      }
+
+      const cargos = await VueloCargo.find({
+        enable: true,
+        vuelo: vuelo._id,
+      })
+        .populate(CARGO_POPULATE)
+        .lean();
+
+      return res.status(200).json({
+        data: {
+          ...vuelo,
+          cargos,
+          resumenCobranza: buildFlightCargoSummary(cargos),
+        },
+      });
+    } catch (error) {
+      logError("VueloController.getById");
+      console.error(error);
+      return res.status(500).json({
+        data: null,
+        message: "Error del servidor",
+      });
+    }
+  };
+
   static create = async (req: Request, res: Response) => {
     try {
       const { fecha, pilotos, paracaidistas } = req.body;

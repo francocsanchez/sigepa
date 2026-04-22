@@ -1,7 +1,9 @@
 import { getBalanceContable, getMovimientosContables } from "@/api/movimientoContableAPI";
 import LoadingSpinner from "@/components/LoadingSpinner";
+import Pagination from "@/components/Pagination";
 import { useQuery } from "@tanstack/react-query";
 import { Plus } from "lucide-react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 
 const currencyFormatter = new Intl.NumberFormat("es-AR", {
@@ -18,6 +20,8 @@ const formatDate = (value: string) =>
   }).format(new Date(value));
 
 export default function ListMovimientosContablesView() {
+  const [currentPage, setCurrentPage] = useState(1);
+
   const {
     data: movimientosContables,
     isError,
@@ -32,6 +36,16 @@ export default function ListMovimientosContablesView() {
     queryFn: getBalanceContable,
   });
 
+  const pageSize = 50;
+  const totalMovimientos = movimientosContables?.length || 0;
+  const totalPages = Math.max(1, Math.ceil(totalMovimientos / pageSize));
+
+  useEffect(() => {
+    if (currentPage > totalPages) {
+      setCurrentPage(totalPages);
+    }
+  }, [currentPage, totalPages]);
+
   if (isLoading) {
     return <LoadingSpinner label="Cargando movimientos contables..." />;
   }
@@ -45,6 +59,7 @@ export default function ListMovimientosContablesView() {
   }
 
   if (!movimientosContables) return null;
+  const paginatedMovimientos = movimientosContables.slice((currentPage - 1) * pageSize, currentPage * pageSize);
 
   const now = new Date();
   const currentMonth = now.getMonth();
@@ -138,7 +153,7 @@ export default function ListMovimientosContablesView() {
                   </td>
                 </tr>
               ) : (
-                movimientosContables.map((movimiento) => {
+                paginatedMovimientos.map((movimiento) => {
                   const isIngreso = movimiento.tipo === "INGRESO";
                   const amountLabel = `${isIngreso ? "+" : "-"} ${currencyFormatter.format(movimiento.monto)}`;
 
@@ -168,6 +183,14 @@ export default function ListMovimientosContablesView() {
             </tbody>
           </table>
         </div>
+
+        <Pagination
+          currentPage={currentPage}
+          onPageChange={setCurrentPage}
+          pageSize={pageSize}
+          totalItems={movimientosContables.length}
+          itemLabel="movimientos"
+        />
       </div>
     </>
   );

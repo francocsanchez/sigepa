@@ -10,6 +10,7 @@ import type {
   VueloFormData,
   VueloListResponse,
   VueloMutationResponse,
+  VueloResponse,
 } from "@/types/index";
 import { isAxiosError } from "axios";
 
@@ -36,6 +37,19 @@ export async function getMisVuelos(): Promise<MiVuelo[]> {
     }
 
     throw new Error("Error al obtener tus vuelos");
+  }
+}
+
+export async function getVueloById(idVuelo: string): Promise<Vuelo> {
+  try {
+    const { data } = await api.get<VueloResponse>(`/vuelos/${idVuelo}`);
+    return data.data;
+  } catch (error) {
+    if (isAxiosError(error) && error.response) {
+      throw new Error(error.response.data.error || error.response.data.message || "Error al obtener el vuelo");
+    }
+
+    throw new Error("Error al obtener el vuelo");
   }
 }
 

@@ -1,9 +1,11 @@
 import { getMisVuelos } from "@/api/vueloAPI";
 import LoadingSpinner from "@/components/LoadingSpinner";
+import Pagination from "@/components/Pagination";
 import { useAuth } from "@/hooks/useAuth";
 import type { MiVuelo, Usuario, VueloCargo } from "@/types/index";
 import { useQuery } from "@tanstack/react-query";
 import { CalendarDays, Plane, ReceiptText, Users } from "lucide-react";
+import { useEffect, useState } from "react";
 import { Link, Navigate } from "react-router-dom";
 
 const currencyFormatter = new Intl.NumberFormat("es-AR", {
@@ -28,6 +30,7 @@ const getUserLabel = (usuario: { name: string; lastName: string }) => `${usuario
 
 export default function MisVuelosView() {
   const { user, isLoading: authLoading, isAuthenticated } = useAuth();
+  const [currentPage, setCurrentPage] = useState(1);
 
   const { data, isLoading, isError, error } = useQuery({
     queryKey: ["vuelos", "mis-vuelos"],
@@ -35,6 +38,16 @@ export default function MisVuelosView() {
     enabled: isAuthenticated,
     refetchOnWindowFocus: false,
   });
+
+  const pageSize = 10;
+  const totalVuelos = data?.length || 0;
+  const totalPages = Math.max(1, Math.ceil(totalVuelos / pageSize));
+
+  useEffect(() => {
+    if (currentPage > totalPages) {
+      setCurrentPage(totalPages);
+    }
+  }, [currentPage, totalPages]);
 
   if (authLoading) {
     return <LoadingSpinner label="Cargando vuelos..." />;
@@ -55,6 +68,8 @@ export default function MisVuelosView() {
       </div>
     );
   }
+
+  const paginatedVuelos = data.slice((currentPage - 1) * pageSize, currentPage * pageSize);
 
   return (
     <div className="space-y-6">
@@ -79,7 +94,7 @@ export default function MisVuelosView() {
         </div>
       ) : (
         <div className="space-y-4">
-          {data.map((vuelo: MiVuelo) => (
+          {paginatedVuelos.map((vuelo: MiVuelo) => (
             <article key={vuelo._id} className="rounded-3xl border border-secondary-dark/60 bg-white p-5 shadow-sm">
               <div className="flex flex-col gap-4 border-b border-secondary-dark/30 pb-4 lg:flex-row lg:items-start lg:justify-between">
                 <div>
@@ -199,6 +214,10 @@ export default function MisVuelosView() {
               </section>
             </article>
           ))}
+
+          <div className="rounded-2xl border border-secondary-dark/60 bg-white shadow-sm">
+            <Pagination currentPage={currentPage} onPageChange={setCurrentPage} pageSize={pageSize} totalItems={data.length} itemLabel="vuelos" />
+          </div>
         </div>
       )}
     </div>

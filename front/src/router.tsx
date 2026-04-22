@@ -25,6 +25,8 @@ const MiPerfilView = lazy(() => import("./views/auth/MiPerfilView"));
 const MisVuelosView = lazy(() => import("./views/auth/MisVuelosView"));
 const CuentaCorrienteView = lazy(() => import("./views/auth/CuentaCorrienteView"));
 const ListVuelosView = lazy(() => import("./views/vuelos/ListVuelosView"));
+const ListTodosVuelosView = lazy(() => import("./views/vuelos/ListTodosVuelosView"));
+const VueloDetailView = lazy(() => import("./views/vuelos/VueloDetailView"));
 
 const RouteFallback = <LoadingSpinner label="Cargando vista..." className="min-h-screen" />;
 
@@ -43,21 +45,31 @@ export default function Router() {
               <Route path="/profile/cuenta-corriente" element={<CuentaCorrienteView />} />
               <Route path="/no-autorizado" element={<NoAutorizado />} />
 
-              <Route path="/config" element={<MenuConfigView />} />
-              <Route path="/config/usuarios" element={<ListUsuariosView />} />
-              <Route path="/config/usuarios/create" element={<CreateUsuarioView />} />
-              <Route path="/config/usuarios/:idUsuario" element={<UsuarioView />} />
-              <Route path="/config/usuarios/:idUsuario/editar" element={<EditUsuarioView />} />
-              <Route path="/config/categorias-contables" element={<ListCategoriasContablesView />} />
-              <Route path="/config/categorias-contables/create" element={<CreateCategoriaContableView />} />
-              <Route path="/config/categorias-contables/:idCategoriaContable" element={<CategoriaContableView />} />
-              <Route path="/config/categorias-contables/:idCategoriaContable/editar" element={<EditCategoriaContableView />} />
-
-              <Route element={<RoleProtectedRoute allowedRoles={["admin", "secretaria", "contable"]} />}>
-                <Route path="/config/cuotas" element={<ListCuotasView />} />
+              <Route element={<RoleProtectedRoute allowedRoles={["admin", "contable"]} />}>
                 <Route path="/contabilidad" element={<ListMovimientosContablesView />} />
                 <Route path="/contabilidad/create" element={<CreateMovimientoContableView />} />
+              </Route>
+
+              <Route element={<RoleProtectedRoute allowedRoles={["admin", "secretaria"]} />}>
+                <Route path="/config" element={<MenuConfigView />} />
                 <Route path="/vuelos" element={<ListVuelosView />} />
+                <Route path="/vuelos/todos" element={<ListTodosVuelosView />} />
+                <Route path="/vuelos/:idVuelo" element={<VueloDetailView />} />
+              </Route>
+
+              <Route element={<RoleProtectedRoute allowedRoles={["admin"]} />}>
+                <Route path="/config/usuarios" element={<ListUsuariosView />} />
+                <Route path="/config/usuarios/create" element={<CreateUsuarioView />} />
+                <Route path="/config/usuarios/:idUsuario" element={<UsuarioView />} />
+                <Route path="/config/usuarios/:idUsuario/editar" element={<EditUsuarioView />} />
+                <Route path="/config/categorias-contables" element={<ListCategoriasContablesView />} />
+                <Route path="/config/categorias-contables/create" element={<CreateCategoriaContableView />} />
+                <Route path="/config/categorias-contables/:idCategoriaContable" element={<CategoriaContableView />} />
+                <Route path="/config/categorias-contables/:idCategoriaContable/editar" element={<EditCategoriaContableView />} />
+              </Route>
+
+              <Route element={<RoleProtectedRoute allowedRoles={["admin", "secretaria"]} />}>
+                <Route path="/config/cuotas" element={<ListCuotasView />} />
               </Route>
             </Route>
           </Route>

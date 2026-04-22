@@ -1,10 +1,12 @@
 import { createVuelo, getPendingVueloCargos, getVuelos, payVueloCargos } from "@/api/vueloAPI";
 import { getUsuarios } from "@/api/usuarioAPI";
 import LoadingSpinner from "@/components/LoadingSpinner";
+import Pagination from "@/components/Pagination";
 import type { Usuario, Vuelo, VueloCargo, VueloFormData, VueloParacaidista, VueloParacaidistaFormItem, VueloTipoSalto } from "@/types/index";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { CalendarDays, CheckCheck, Plane, Plus, ReceiptText, Trash2 } from "lucide-react";
-import { useMemo, useState } from "react";
+import { CalendarDays, CheckCheck, Plane, Plus, ReceiptText, Table2, Trash2 } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import { Link } from "react-router-dom";
 import { toast } from "sonner";
 
 const currencyFormatter = new Intl.NumberFormat("es-AR", {
@@ -45,6 +47,7 @@ export default function ListVuelosView() {
   const [formData, setFormData] = useState<VueloFormData>(initialFormData);
   const [selectedPendingUserId, setSelectedPendingUserId] = useState("");
   const [selectedCargoIds, setSelectedCargoIds] = useState<string[]>([]);
+  const [currentPage, setCurrentPage] = useState(1);
 
   const {
     data: usuarios,
@@ -136,6 +139,16 @@ export default function ListVuelosView() {
       };
     });
   };
+
+  const pageSize = 10;
+  const totalVuelos = vuelos?.length || 0;
+  const totalPages = Math.max(1, Math.ceil(totalVuelos / pageSize));
+
+  useEffect(() => {
+    if (currentPage > totalPages) {
+      setCurrentPage(totalPages);
+    }
+  }, [currentPage, totalPages]);
 
   const addSecondPilot = () => {
     setFormData((current: VueloFormData) => ({
@@ -243,6 +256,7 @@ export default function ListVuelosView() {
   }
 
   const totalPendiente = pendingCargos.reduce((acc, cargo) => acc + cargo.monto, 0);
+  const paginatedVuelos = vuelos.slice((currentPage - 1) * pageSize, currentPage * pageSize);
 
   return (
     <div className="space-y-6">
@@ -252,6 +266,14 @@ export default function ListVuelosView() {
           <h2 className="text-2xl font-semibold tracking-tight text-slate-900">Vuelos</h2>
           <p className="mt-1 text-sm text-slate-500">Registro de vuelos, cargos pendientes y pagos aplicados a paracaidistas.</p>
         </div>
+
+        <Link
+          to="/vuelos/todos"
+          className="inline-flex items-center justify-center gap-2 rounded-2xl border border-secondary-dark/60 px-4 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-secondary/15"
+        >
+          <Table2 className="h-4 w-4" />
+          Ver todos los vuelos
+        </Link>
       </div>
 
       <section className="grid gap-3 md:grid-cols-3">
@@ -557,7 +579,7 @@ export default function ListVuelosView() {
           </div>
         ) : (
           <div className="space-y-4">
-            {vuelos.map((vuelo: Vuelo) => (
+            {paginatedVuelos.map((vuelo: Vuelo) => (
               <article key={vuelo._id} className="rounded-2xl border border-secondary-dark/50 bg-white p-4">
                 <div className="flex flex-col gap-3 border-b border-secondary-dark/30 pb-4 lg:flex-row lg:items-start lg:justify-between">
                   <div>
@@ -615,12 +637,25 @@ export default function ListVuelosView() {
                   </div>
                 </div>
 
-                <div className="mt-4 flex items-center gap-2 text-xs text-slate-500">
-                  <ReceiptText className="h-3.5 w-3.5" />
-                  {vuelo.cargos.length} cargos contables asociados al vuelo
+                <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                  <div className="flex items-center gap-2 text-xs text-slate-500">
+                    <ReceiptText className="h-3.5 w-3.5" />
+                    {vuelo.cargos.length} cargos contables asociados al vuelo
+                  </div>
+
+                  <Link
+                    to={`/vuelos/${vuelo._id}`}
+                    className="inline-flex items-center justify-center rounded-xl border border-secondary-dark/60 px-3 py-2 text-sm font-semibold text-slate-700 transition hover:bg-secondary/15"
+                  >
+                    Ver detalle
+                  </Link>
                 </div>
               </article>
             ))}
+
+            <div className="rounded-2xl border border-secondary-dark/50 bg-white shadow-sm">
+              <Pagination currentPage={currentPage} onPageChange={setCurrentPage} pageSize={pageSize} totalItems={vuelos.length} itemLabel="vuelos" />
+            </div>
           </div>
         )}
       </section>

@@ -44,9 +44,9 @@ export default function MenuAppLayout() {
     navigate("/login", { replace: true });
   };
 
-  const { allowed: canShowConfig } = useRoleGuard(["socio"]);
-  const { allowed: canShowReports } = useRoleGuard(["socio", "contable"]);
-  const { allowed: canShowAccounting } = useRoleGuard(["admin", "secretaria", "contable"]);
+  const { allowed: canShowConfig } = useRoleGuard(["admin", "secretaria"]);
+  const { allowed: canShowAccounting } = useRoleGuard(["admin", "contable"]);
+  const { allowed: canShowFlights } = useRoleGuard(["admin", "secretaria"]);
 
   return (
     <aside className="sticky top-0 flex h-screen w-full max-w-sm flex-col overflow-y-auto border-r border-[#2e241f] bg-[#171311] px-4 py-5 text-[#f7e4d1] sm:px-5 lg:w-2/12 lg:min-w-[270px]">
@@ -63,9 +63,8 @@ export default function MenuAppLayout() {
         {navigationItems
           .filter((item) => {
             if (item.href === "/config") return canShowConfig;
-            if (item.href === "/reports") return canShowReports;
             if (item.href === "/contabilidad") return canShowAccounting;
-            if (item.href === "/vuelos") return canShowAccounting;
+            if (item.href === "/vuelos") return canShowFlights;
             return true;
           })
           .map((item) => {
