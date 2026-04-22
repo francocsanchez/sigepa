@@ -27,7 +27,7 @@ const navigationItems: NavigationItem[] = [
     icon: ChartColumn,
   },
   {
-    label: "Configuración",
+    label: "Administración",
     href: "/config",
     icon: Settings,
   },

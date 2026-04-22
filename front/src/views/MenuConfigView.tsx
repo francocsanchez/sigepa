@@ -1,4 +1,5 @@
-import { ChevronRight, FolderOpen, Users } from "lucide-react";
+import useRoleGuard from "@/hooks/useRoleGuard";
+import { ChevronRight, FolderOpen, HandCoins, Users } from "lucide-react";
 import { Link } from "react-router-dom";
 
 const configItems = [
@@ -14,21 +15,31 @@ const configItems = [
     href: "/config/categorias-contables",
     icon: FolderOpen,
   },
+  {
+    title: "Cuotas",
+    description: "Generá y consultá las cuotas sociales por año y por mes.",
+    href: "/config/cuotas",
+    icon: HandCoins,
+    allowedRoles: ["admin", "secretaria", "contable"],
+  },
 ];
 
 export default function MenuConfigView() {
+  const { allowed: canManageCuotas } = useRoleGuard(["admin", "secretaria", "contable"]);
+  const visibleItems = configItems.filter((item) => !item.allowedRoles || canManageCuotas);
+
   return (
     <>
       <div className="mb-6 flex flex-col gap-3 border-b border-secondary-dark/60 pb-5 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <p className="text-sm font-medium text-primary">Configuracion</p>
+          <p className="text-sm font-medium text-primary">Administración</p>
           <h2 className="text-2xl font-semibold tracking-tight text-slate-900">Centro de control</h2>
         </div>
       </div>
 
       <div className="flex-1 overflow-hidden">
         <div className="grid  gap-4 md:grid-cols-2 xl:grid-cols-3">
-          {configItems.map((item) => {
+          {visibleItems.map((item) => {
             const Icon = item.icon;
 
             return (

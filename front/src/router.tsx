@@ -11,7 +11,7 @@ import EditCategoriaContableView from "./views/categorias-contables/EditCategori
 import CategoriaContableView from "./views/categorias-contables/CategoriaContableView";
 import ListMovimientosContablesView from "./views/movimientos-contables/ListMovimientosContablesView";
 import CreateMovimientoContableView from "./views/movimientos-contables/CreateMovimientoContableView";
-import EditMovimientoContableView from "./views/movimientos-contables/EditMovimientoContableView";
+import ListCuotasView from "./views/cuotas/ListCuotasView";
 
 import LoginView from "./views/auth/LoginView";
 import NotFound from "./views/NotFound";
@@ -42,9 +42,9 @@ export default function Router() {
             <Route path="/config/categorias-contables/:idCategoriaContable/editar" element={<EditCategoriaContableView />} />
 
             <Route element={<RoleProtectedRoute allowedRoles={["admin", "secretaria", "contable"]} />}>
+              <Route path="/config/cuotas" element={<ListCuotasView />} />
               <Route path="/contabilidad" element={<ListMovimientosContablesView />} />
               <Route path="/contabilidad/create" element={<CreateMovimientoContableView />} />
-              <Route path="/contabilidad/:idMovimientoContable/editar" element={<EditMovimientoContableView />} />
             </Route>
           </Route>
         </Route>

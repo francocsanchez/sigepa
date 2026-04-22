@@ -91,7 +91,14 @@ export default function ListCategoriasContablesView() {
                 {categoriasContables.map((categoria) => (
                   <tr key={categoria._id} className="transition-colors hover:bg-secondary/20">
                     <td className="px-4 py-3">
-                      <p className="text-sm font-medium text-slate-800">{categoria.nombre}</p>
+                      <div className="flex items-center gap-2">
+                        <p className="text-sm font-medium text-slate-800">{categoria.nombre}</p>
+                        {categoria.isSystem ? (
+                          <span className="inline-flex rounded-full bg-slate-100 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.12em] text-slate-600">
+                            Sistema
+                          </span>
+                        ) : null}
+                      </div>
                     </td>
 
                     <td className="px-4 py-3">
@@ -122,7 +129,14 @@ export default function ListCategoriasContablesView() {
 
                         <Link
                           to={`${categoria._id}/editar`}
-                          className="inline-flex items-center gap-1.5 rounded-lg border border-secondary-dark/60 bg-white px-2.5 py-1.5 text-xs font-medium text-slate-600 transition-colors hover:border-primary/40 hover:bg-secondary/40 hover:text-primary-dark"
+                          onClick={(event) => {
+                            if (categoria.isSystem) event.preventDefault();
+                          }}
+                          className={`inline-flex items-center gap-1.5 rounded-lg border px-2.5 py-1.5 text-xs font-medium transition-colors ${
+                            categoria.isSystem
+                              ? "cursor-not-allowed border-slate-200 bg-slate-100 text-slate-400"
+                              : "border-secondary-dark/60 bg-white text-slate-600 transition-colors hover:border-primary/40 hover:bg-secondary/40 hover:text-primary-dark"
+                          }`}
                         >
                           <Pencil className="h-3.5 w-3.5" strokeWidth={2} />
                           <span>Editar</span>
@@ -130,9 +144,12 @@ export default function ListCategoriasContablesView() {
 
                         <button
                           type="button"
+                          disabled={categoria.isSystem}
                           onClick={() => changeStatus(categoria._id)}
                           className={`inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-medium transition-colors ${
-                            !categoria.enable
+                            categoria.isSystem
+                              ? "cursor-not-allowed border border-slate-200 bg-slate-100 text-slate-400"
+                              : !categoria.enable
                               ? "border border-emerald-200 bg-emerald-50 text-emerald-700 hover:bg-emerald-100"
                               : "border border-red-200 bg-red-50 text-red-600 hover:bg-red-100"
                           }`}

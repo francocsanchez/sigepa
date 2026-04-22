@@ -86,6 +86,8 @@ export default function CategoriaContableView() {
         <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
           <DetailItem label="Nombre" value={categoriaContable.nombre} />
           <DetailItem label="Tipo" value={tipoLabels[categoriaContable.tipo]} />
+          <DetailItem label="Clave del sistema" value={categoriaContable.key} />
+          <DetailItem label="Gestionada por sistema" value={categoriaContable.isSystem} />
           <DetailItem label="Estado" value={categoriaContable.enable ? "Habilitada" : "Deshabilitada"} />
         </div>
       </section>

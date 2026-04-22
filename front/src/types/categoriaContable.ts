@@ -6,6 +6,8 @@ export type CategoriaContable = {
   _id: string;
   nombre: string;
   tipo: CategoriaContableTipo;
+  key?: string | null;
+  isSystem: boolean;
   enable: boolean;
   createdAt?: string;
   updatedAt?: string;

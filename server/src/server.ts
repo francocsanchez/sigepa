@@ -23,10 +23,12 @@ import usuarioRoutes from "./routes/usuarioRoutes";
 import configRoutes from "./routes/configRoutes";
 import categoriaContableRoutes from "./routes/categoriaContableRoutes";
 import movimientoContableRoutes from "./routes/movimientoContableRoutes";
+import cuotaRoutes from "./routes/cuotaRoutes";
 
 app.use("/api/usuarios", usuarioRoutes);
 app.use("/api/configuracion", configRoutes);
 app.use("/api/categorias-contables", categoriaContableRoutes);
 app.use("/api/movimientos-contables", movimientoContableRoutes);
+app.use("/api/cuotas", cuotaRoutes);
 
 export default app;

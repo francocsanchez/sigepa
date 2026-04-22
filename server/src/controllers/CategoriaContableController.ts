@@ -7,6 +7,8 @@ const normalizeCategoriaContable = <T extends { enable?: boolean | null }>(categ
   enable: categoria.enable !== false,
 });
 
+const isProtectedSystemCategoria = (categoria: { isSystem?: boolean | null }) => categoria.isSystem === true;
+
 export class CategoriaContableController {
   static getAll = async (req: Request, res: Response) => {
     try {
@@ -96,6 +98,21 @@ export class CategoriaContableController {
     try {
       const { nombre, tipo } = req.body;
       const normalizedNombre = nombre.trim();
+      const categoriaActual = await CategoriaContable.findById(idCategoriaContable).lean();
+
+      if (!categoriaActual) {
+        return res.status(404).json({
+          data: null,
+          message: "Categoría no encontrada",
+        });
+      }
+
+      if (isProtectedSystemCategoria(categoriaActual)) {
+        return res.status(400).json({
+          data: null,
+          message: "La categoría es gestionada por el sistema y no puede editarse",
+        });
+      }
 
       const existingCategoria = await CategoriaContable.findOne({
         _id: { $ne: idCategoriaContable },
@@ -117,13 +134,6 @@ export class CategoriaContableController {
         },
         { new: true },
       ).lean();
-
-      if (!categoria) {
-        return res.status(404).json({
-          data: null,
-          message: "Categoría no encontrada",
-        });
-      }
 
       return res.status(200).json({
         data: normalizeCategoriaContable(categoria),
@@ -149,6 +159,13 @@ export class CategoriaContableController {
         return res.status(404).json({
           data: null,
           message: "Categoría no encontrada",
+        });
+      }
+
+      if (isProtectedSystemCategoria(categoria)) {
+        return res.status(400).json({
+          data: null,
+          message: "La categoría es gestionada por el sistema y no puede eliminarse",
         });
       }
 
@@ -179,6 +196,13 @@ export class CategoriaContableController {
         return res.status(404).json({
           data: null,
           message: "Categoría no encontrada",
+        });
+      }
+
+      if (isProtectedSystemCategoria(categoria)) {
+        return res.status(400).json({
+          data: null,
+          message: "La categoría es gestionada por el sistema y no puede cambiar de estado",
         });
       }
 

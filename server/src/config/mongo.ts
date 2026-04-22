@@ -1,6 +1,7 @@
 import "colors";
 import mongoose from "mongoose";
 import dotenv from "dotenv";
+import { ensureSystemCategorias } from "../helpers/systemCategories";
 
 dotenv.config();
 
@@ -15,6 +16,8 @@ export const connectDB = async () => {
     console.log(`📍 Host : ${host}`.magenta);
     console.log(`🔌 Port : ${port}`.magenta);
     console.log(`📦 DB   : ${name}`.cyan);
+    await ensureSystemCategorias();
+    console.log("🧩 System categories ensured".yellow);
     console.log("────────────────────────────────────────".gray);
   } catch (error) {
     console.log("❌ MongoDB connection error".red.bold);

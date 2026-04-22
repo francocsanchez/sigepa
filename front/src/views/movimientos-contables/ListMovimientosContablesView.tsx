@@ -1,10 +1,8 @@
-import { deleteMovimientoContableById, getBalanceContable, getMovimientosContables } from "@/api/movimientoContableAPI";
+import { getBalanceContable, getMovimientosContables } from "@/api/movimientoContableAPI";
 import LoadingSpinner from "@/components/LoadingSpinner";
-import type { MovimientoContableMutationResponse } from "@/types/index";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Pencil, Plus, Trash2 } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
+import { Plus } from "lucide-react";
 import { Link } from "react-router-dom";
-import { toast } from "sonner";
 
 const currencyFormatter = new Intl.NumberFormat("es-AR", {
   style: "currency",
@@ -20,7 +18,6 @@ const formatDate = (value: string) =>
   }).format(new Date(value));
 
 export default function ListMovimientosContablesView() {
-  const queryClient = useQueryClient();
   const {
     data: movimientosContables,
     isError,
@@ -33,18 +30,6 @@ export default function ListMovimientosContablesView() {
   const { data: balanceContable } = useQuery({
     queryKey: ["movimientos-contables", "balance"],
     queryFn: getBalanceContable,
-  });
-
-  const { mutate: anularMovimiento, isPending: isAnnulling } = useMutation({
-    mutationFn: deleteMovimientoContableById,
-    onError: (error: Error) => {
-      toast.error(error.message || "Error al anular el movimiento contable");
-    },
-    onSuccess: (response: MovimientoContableMutationResponse) => {
-      toast.success(response.message || "Movimiento contable anulado");
-      queryClient.invalidateQueries({ queryKey: ["movimientos-contables", "listar"] });
-      queryClient.invalidateQueries({ queryKey: ["movimientos-contables", "balance"] });
-    },
   });
 
   if (isLoading) {
@@ -142,16 +127,13 @@ export default function ListMovimientosContablesView() {
                 </th>
                 <th className="px-3 py-2.5 text-right text-[11px] font-semibold uppercase tracking-[0.18em] text-primary-dark/80">Monto</th>
                 <th className="px-3 py-2.5 text-left text-[11px] font-semibold uppercase tracking-[0.18em] text-primary-dark/80">Concepto</th>
-                <th className="px-3 py-2.5 text-right text-[11px] font-semibold uppercase tracking-[0.18em] text-primary-dark/80">
-                  Acciones
-                </th>
               </tr>
             </thead>
 
             <tbody className="divide-y divide-secondary-dark/30">
               {movimientosContables.length === 0 ? (
                 <tr>
-                  <td colSpan={5} className="px-3 py-8 text-center text-sm text-slate-500">
+                  <td colSpan={4} className="px-3 py-8 text-center text-sm text-slate-500">
                     Todavía no hay movimientos contables cargados.
                   </td>
                 </tr>
@@ -179,27 +161,6 @@ export default function ListMovimientosContablesView() {
                         {amountLabel}
                       </td>
                       <td className="max-w-[420px] px-3 py-2.5 text-sm text-slate-700">{movimiento.concepto}</td>
-                      <td className="px-3 py-2.5">
-                        <div className="flex justify-end gap-2">
-                          <Link
-                            to={`/contabilidad/${movimiento._id}/editar`}
-                            className="inline-flex items-center gap-1.5 rounded-lg border border-secondary-dark/60 bg-white px-2.5 py-1.5 text-xs font-medium text-slate-600 transition-colors hover:border-primary/40 hover:bg-secondary/40 hover:text-primary-dark"
-                          >
-                            <Pencil className="h-3.5 w-3.5" strokeWidth={2} />
-                            <span>Editar</span>
-                          </Link>
-
-                          <button
-                            type="button"
-                            disabled={isAnnulling}
-                            onClick={() => anularMovimiento(movimiento._id)}
-                            className="inline-flex items-center gap-1.5 rounded-lg border border-red-200 bg-red-50 px-2.5 py-1.5 text-xs font-medium text-red-600 transition-colors hover:bg-red-100 disabled:cursor-not-allowed disabled:opacity-60"
-                          >
-                            <Trash2 className="h-3.5 w-3.5" strokeWidth={2} />
-                            <span>Anular</span>
-                          </button>
-                        </div>
-                      </td>
                     </tr>
                   );
                 })

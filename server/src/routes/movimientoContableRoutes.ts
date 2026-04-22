@@ -16,7 +16,5 @@ router.get("/", MovimientoContableController.getAll);
 router.get("/balance", MovimientoContableController.getBalance);
 router.get("/:idMovimientoContable", idValidationMovimientoContable, handleImputErrors, MovimientoContableController.getByID);
 router.post("/", createValidationMovimientoContable, handleImputErrors, MovimientoContableController.create);
-router.put("/:idMovimientoContable", updateValidationMovimientoContable, handleImputErrors, MovimientoContableController.updateByID);
-router.delete("/:idMovimientoContable", idValidationMovimientoContable, handleImputErrors, MovimientoContableController.deleteByID);
 
 export default router;
